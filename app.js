@@ -11,7 +11,9 @@ app.use(express.static('public'));
 app.set('view engine', 'ejs');
 
 const props = {
-  debugParam: null,
+  buildVersion: '0.0.1',
+  fcwDebug: false,
+  webglDebug: false,
 
   gaTrackingId: null,
   trackJsTocken: null,

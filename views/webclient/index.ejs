@@ -3,27 +3,28 @@
 <head>
 <title>Freeciv-web</title>
 <link rel="stylesheet" href="/css/font-awesome.min.css">
-<link rel="stylesheet" type="text/css" href="/css/webclient.min.css?ts=${initParam.buildTimeStamp}" />
+<link rel="stylesheet" type="text/css" href="/css/webclient.min.css?ts=<%= props.buildVersion %>" />
 <meta name="description" content="Freeciv-Web allows you to play Civ on the web for free. Single and multiplayer! Can you build an empire that stands the test of time?">
 <% if(props.trackJsToken != null) { %>
 <script type="text/javascript">window._trackJs = { token: '<%= props.trackJsToken %>' };</script>
 <script type="text/javascript" src="https://cdn.trackjs.com/releases/current/tracker.js"></script>
 <% } %>
 <script type="text/javascript">
-var ts="${initParam.buildTimeStamp}";
+var ts="<%= props.buildVersion %>";
 var fcwDebug=<%= props.fcwDebug %>;
 </script>
-<script type="text/javascript" src="/javascript/libs/jquery.min.js?ts=${initParam.buildTimeStamp}"></script>
+<script type="text/javascript" src="/javascript/libs/jquery.min.js?ts=<%= props.buildVersion %>"></script>
 
 <script src="https://apis.google.com/js/platform.js"></script>
 
-<script type="text/javascript" src="/javascript/webclient.min.js?ts=${initParam.buildTimeStamp}"></script>
+<script type="text/javascript" src="/javascript/webclient.min.js?ts=<%= props.buildVersion %>"></script>
 
 <script type="text/javascript" src="/music/audio.min.js"></script>
 
 <c:if test="${not empty param.webgl_debug}" >
+<% if(props.webglDebug) { %>
   <script> var gliEmbedDebug = true; </script> <script src="/javascript/webgl/libs/webgl-inspector/core/embed.js"></script>
-</c:if>
+<% } %>
 
 <link rel="shortcut icon" href="/images/freeciv-shortcut-icon.png" />
 <link rel="apple-touch-icon" href="/images/freeciv-splash2.png" />
@@ -44,7 +45,6 @@ var fcwDebug=<%= props.fcwDebug %>;
 </head>
 
 <body>
-    <jsp:include page="pregame.jsp" flush="false"/>
     <%- include('pregame') %>
     <%/*<jsp:include page="game.jsp" flush="false"/>*/%>
 
