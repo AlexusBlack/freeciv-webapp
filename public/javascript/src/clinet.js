@@ -36,8 +36,8 @@ var ping_timer = null;
 var last_user_action_time = new Date().getTime();
 var kick_inactive_time = 40 * 60000; // 40min inactive = kick off time
 
-/* Tracking and knowing ping performance can be used later to adjust 
- * setTimeout(..) delays to perform better on fast connections and 
+/* Tracking and knowing ping performance can be used later to adjust
+ * setTimeout(..) delays to perform better on fast connections and
  * slow down enough for slow connections  */
  var last_ping_measurement = 0;
 
@@ -50,7 +50,7 @@ function network_init_manual_hack(civserverport_manual, username_manual,
     $.ajax({
         type: 'POST',
         url: "/validate_twit?username="+username_manual+"&type=manual_hack&port="+civserverport_manual,
-    });    
+    });
 }
 
 /****************************************************************************
@@ -99,16 +99,17 @@ function websocket_init()
   var proxyport = 1000 + parseFloat(civserverport);
   var ws_protocol = ('https:' == window.location.protocol) ? "wss://" : "ws://";
   var port = window.location.port ? (':' + window.location.port) : '';
-  ws = new WebSocket(ws_protocol + window.location.hostname + port + "/civsocket/" + proxyport);
+  //ws = new WebSocket(ws_protocol + window.location.hostname + port + "/civsocket/" + proxyport);
+  ws = new WebSocket(ws_protocol + window.location.hostname + ':' + proxyport + "/civsocket/" + proxyport);
 
   ws.onopen = check_websocket_ready;
 
   ws.onmessage = function (event) {
      if (typeof client_handle_packet !== 'undefined') {
        client_handle_packet(JSON.parse(event.data));
-       if (DEBUG_LOG_PACKETS) 
+       if (DEBUG_LOG_PACKETS)
          console.log("*** INCOMING PACKET>>>>>"+event.data);
-        
+
      } else {
        console.error("Error, freeciv-web not compiled correctly. Please "
              + "run sync.sh in freeciv-proxy correctly.");
@@ -209,9 +210,9 @@ function send_request(packet_payload)
 
     //console.log("Received outgoing pid=="+object_packet['pid'])
     /* workaround current 3.1 server uses actionenablers to filter activities
-       legality. The actions being sent to the client after a (D)o Action 
+       legality. The actions being sent to the client after a (D)o Action
        render unit_do_action requests in the user dialog, which the server
-       rejects because it wants the request as a change_activity packet. 
+       rejects because it wants the request as a change_activity packet.
        TO DO: remove when upstream fixes this. */
 
     var object_packet = JSON.parse(packet_payload);
@@ -239,7 +240,7 @@ function send_request(packet_payload)
     ws.send(packet_payload);
   }
 
-  if (DEBUG_LOG_PACKETS) 
+  if (DEBUG_LOG_PACKETS)
     console.log("OUTGOING PACKET>>>>>"+packet_payload);
 
   if (debug_active) {
@@ -249,7 +250,7 @@ function send_request(packet_payload)
   // 2 types of outgoing messages are false positive for user action:
   var packet_type = jQuery.parseJSON("["+packet_payload+"]")[0]['pid'];
   // ping answer and update_metamessage_game_running_status():
-  if (packet_type==packet_conn_pong || packet_type==packet_chat_msg_req) 
+  if (packet_type==packet_conn_pong || packet_type==packet_chat_msg_req)
     return;
   // If we made it here, the user did something. Update activity stamp:
   set_last_user_action_time();
@@ -318,7 +319,7 @@ function send_message_delayed(message, delay)
 ****************************************************************************/
 function send_message(message)
 {
-  var packet = {"pid" : packet_chat_msg_req, 
+  var packet = {"pid" : packet_chat_msg_req,
                 "message" : message};
   send_request(JSON.stringify(packet));
 }
