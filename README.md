@@ -7,3 +7,4 @@
 
 ## TODO
 - Make tilespec converter, right now need original project to generate those
+- Make handlebards pre-compilation or get rid of precompilation entirely

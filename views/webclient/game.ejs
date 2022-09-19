@@ -30,33 +30,32 @@
         <%- include('canvas') %>
 			</div>
 			<div id="tabs-empire">
-				<jsp:include page="empire.jsp" flush="false"/>
-	        </div>
-			  <div id="tabs-civ">
-				<jsp:include page="civilization.jsp" flush="false"/>
+        <%- include('empire') %>
+	    </div>
+			<div id="tabs-civ">
+        <%- include('civilization') %>
 			</div>
 			<div id="tabs-tec">
-				<jsp:include page="technologies.jsp" flush="false"/>
+        <%- include('technologies') %>
 			</div>
 			<div id="tabs-nat">
-				<jsp:include page="nations.jsp" flush="false"/>
+        <%- include('nations') %>
 			</div>
 			<div id="tabs-cities">
-				<jsp:include page="cities.jsp" flush="false"/>
+        <%- include('cities') %>
 			</div>
 	<%/*		<div id="tabs-chat"> */%>
 	<%/*				<jsp:include page="chat.jsp" flush="false"/> */%>
 	<%/*		</div> */%>
 
-			<div id="tabs-hel" class="manual_doc">
-			</div>
+			<div id="tabs-hel" class="manual_doc"></div>
 
 			<div id="tabs-opt">
-				<jsp:include page="options.jsp" flush="false"/>
+        <%- include('options') %>
 			</div>
 			
 			<div id="tabs-warcalc">
-					<jsp:include page="warcalc.jsp" flush="false"/>
+        <%- include('warcalc') %>
 			</div>
 			
 		</div>
