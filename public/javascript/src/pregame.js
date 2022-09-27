@@ -1397,7 +1397,7 @@ function validate_username_callback()
   var check_username = $("#username_req").val();
   $.ajax({
    type: 'POST',
-   url: "//games.webciv.org:6556/validate_user?userstring=" + check_username,
+   url: freeciv_api_server_url + "/validate_user?userstring=" + check_username,
    success: function(data, textStatus, request){
       if (data == "user_does_not_exist") {
 
@@ -1425,7 +1425,7 @@ function validate_username_callback()
 
           $.ajax({
            type: 'POST',
-           url: "//games.webciv.org:6556/login_user?username=" + encodeURIComponent(username) + "&sha_password=" + sha_password,
+           url: freeciv_api_server_url + "/login_user?username=" + encodeURIComponent(username) + "&sha_password=" + sha_password,
            success: function(data, textStatus, request){
                if (data != null && data == "OK") {
                  simpleStorage.set("username", username);

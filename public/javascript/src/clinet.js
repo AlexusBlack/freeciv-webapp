@@ -64,7 +64,7 @@ function network_init()
     return;
   }
 
-  var civclient_request_url = "//games.webciv.org:6556/civclientlauncher";
+  var civclient_request_url = freeciv_api_server_url + "/civclientlauncher";
   if ($.getUrlVar('action') != null) civclient_request_url += "?action=" + $.getUrlVar('action');
   if ($.getUrlVar('action') == null && $.getUrlVar('civserverport') != null) civclient_request_url += "?";
   if ($.getUrlVar('civserverport') != null) civclient_request_url += "&civserverport=" + $.getUrlVar('civserverport');
