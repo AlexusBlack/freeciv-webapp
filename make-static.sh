@@ -1,10 +1,10 @@
 #!/bin/bash
 
-rm -r build
-mkdir build
-cp -r public/* build/
+rm -r docs
+mkdir docs
+cp -r public/* docs/
 
-wget http://localhost:3000/ -O build/index.html
-mkdir build/webclient
-wget http://localhost:3000/webclient/ -O build/webclient/index.html
+wget http://localhost:3000/ -O docs/index.html
+mkdir docs/webclient
+wget http://localhost:3000/webclient/ -O docs/webclient/index.html
 
