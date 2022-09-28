@@ -97,11 +97,12 @@ function websocket_init()
 {
   $.blockUI({ message: "<h1 style='text-align:center'><font color='#ccc'>Connecting...</font></h1>"});
   var proxyport = 1000 + parseFloat(civserverport);
-  var ws_protocol = ('https:' == window.location.protocol) ? "wss://" : "ws://";
+  // var ws_protocol = ('https:' == window.location.protocol) ? "wss://" : "ws://";
+  var ws_protocol = ('https:' == window.location.protocol) ? "wss:" : "ws:";
   var port = window.location.port ? (':' + window.location.port) : '';
   //ws = new WebSocket(ws_protocol + window.location.hostname + port + "/civsocket/" + proxyport);
   // ws = new WebSocket(ws_protocol + window.location.hostname + ':' + proxyport + "/civsocket/" + proxyport);
-  ws = new WebSocket(ws_protocol + window.location.hostname + ':6556' + "/civsocket/" + proxyport);
+  ws = new WebSocket(ws_protocol + freeciv_api_server_url + "/civsocket/" + proxyport);
 
   ws.onopen = check_websocket_ready;
 
