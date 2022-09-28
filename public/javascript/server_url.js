@@ -1,1 +1,1 @@
-const freeciv_api_server_url = '//games.webciv.org:5555';
+const freeciv_api_server_url = '//games.webciv.org';
