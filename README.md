@@ -12,5 +12,6 @@
   - Flags
 - Make handlebards pre-compilation or get rid of precompilation entirely
 - Cleanup CSS. Ideally separate main website from game client entirely.
+- Deal with annoying full imersion popup
 - Add tileset argument to launcher
 - Add space tileset!
