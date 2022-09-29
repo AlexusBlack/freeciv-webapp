@@ -29,10 +29,10 @@
 				<div class="panel-freeciv">
 					<p>Shows the number of started new games Freeciv each day in the following categories:</p>
 					<ul>
-						<li>Freeciv-TnT singleplayer 2D</li>
-						<li>Freeciv-TnT multiplayer</li>
+						<li>Freeciv singleplayer 2D</li>
+						<li>Freeciv multiplayer</li>
 						<li>Freeciv desktop multiplayer: games reported by meta.freeciv.org</li>
-						<li>Freeciv-TnT hotseat games</li>
+						<li>Freeciv hotseat games</li>
 					</ul>
 				</div>
 			</div>
@@ -49,7 +49,7 @@
 			  pointSize: 0,
 			  lineWidth: 1,
 			  ykeys: ['webSinglePlayer', 'webMultiPlayer', 'desktopMultiplayer', 'webHotseat'],
-			  labels: ['Freeciv-TnT 2D singleplayer', 'Freeciv-TnT multiplayer', 'Freeciv desktop multiplayer', 'Freeciv-TnT hotseat']
+			  labels: ['Freeciv 2D singleplayer', 'Freeciv multiplayer', 'Freeciv desktop multiplayer', 'Freeciv hotseat']
 			});
             } catch(err) {
               console.log("Problem showing score log graph: " + err);

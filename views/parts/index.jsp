@@ -386,11 +386,12 @@
 		</div> <!-- end multiplayer/best play by email -->
 
 
+    <%/*
 		<div class="row">
 			<div class="col-md-12">
 					<h3><a href="https://discord.com/invite/BrpzgpgMAF">Click here to join TnT's Discord</a></h3>
 			</div>
-		</div>
+    </div>*/%>
 
 		<div  class="row" style="padding-top: 30px;">
 			<div class="col-md-2">
@@ -473,13 +474,14 @@
 					<div class="panel-freeciv">
 						<h4><fmt:message key="index-credits"/></h4>
 						<ul>
-							<li>TnT Admin - Canik <i class="fa fa-github"></i>  <a href="https://github.com/Canik05">@Canik05</a></li>
 							<li>Andreas R&oslash;sdal <i class="fa fa-twitter"></i>  <a href="https://github.com/andreasrosdal/">@andreasrosdal</a></li>
 							<li>Lexxie L. <i class="fa fa-github"></i>  <a href="https://github.com/Lexxie9952/">@lexxie9952</a></li>
 							<li>Sveinung Kvilhaugsvik <i class="fa fa-github"></i>  <a href="https://github.com/kvilhaugsvik">@kvilhaugsvik</a></li>
 							<li>Marko Lindqvist <i class="fa fa-github"></i>  <a href="https://github.com/cazfi">@cazfi</a></li>
 							<li>M&#xE1;ximo Casta&#xF1;eda <i class="fa fa-github"></i>  <a href="https://github.com/lonemadmax">@lonemadmax</a></li>
-							<li><a href="https://github.com/Canik05/fcw.org-server/graphs/contributors">Full list</a></li>
+							<li>Canik <i class="fa fa-github"></i>  <a href="https://github.com/Canik05">@Canik05</a></li>
+							<li>Alex Chernov <i class="fa fa-github"></i>  <a href="https://github.com/AlexusBlack/">@AlexusBlack</a></li>
+							<li><a href="https://github.com/AlexusBlack/freeciv-webapp/graphs/contributors">Full list</a></li>
 						</ul>
 						
 					</div>

@@ -10,7 +10,7 @@
 		</button>
 		<a class="navbar-brand" href="/">
 			<!--Logo font is: Liberation Sans Bold Italic -->
-			<img src="/static/images/brand.png" alt="Freeciv TnT">
+			<img src="/static/images/brand.svg" alt="WebCiv">
 		</a>
 		</div>
 
@@ -18,6 +18,8 @@
 		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 		<ul class="nav navbar-nav">
 			<li><a href="/webclient/?action=new&amp;type=singleplayer">Singleplayer</a></li>
+			<li><a href="https://github.com/AlexusBlack/freeciv-webapp">Source</a></li>
+    <%/*
 			<li class="dropdown">
 				<a href="/game/list?v=multiplayer" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
 					<span onclick="window.location='/game/list?v=multiplayer'">Multiplayer</span> <span class="caret"></span> <span class="badge ongoing-games-number" id="ongoing-games" title="Ongoing games"></span>
@@ -31,8 +33,7 @@
 				</ul>
 			</li>
 			<li id="donate_link"><a href="https://www.patreon.com/freeciv_val">Donations</a></li>
-			<li><a href="https://github.com/Canik05/freeciv-tnt">Source</a></li>
-			<li><a href="https://val.tacticsandtriumph.com/">TnT Valhalla</a></li>
+    */%>
 			<%/* <li class="dropdown">
 				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" title="${pageContext.request.locale.language} ${pageContext.request.locale.country}">
 					Language <span class="caret"></span>
@@ -50,7 +51,7 @@
 			<input type="hidden" name="sites" value="www.freeciv.org,forum.freeciv.org,freeciv.wikia.com">
 			<div class="form-group">
 				<div class="input-group">
-					<input type="text" class="form-control" name="q" placeholder="Tactics&Triumph">
+					<input type="text" class="form-control" name="q" placeholder="Search">
 					<span class="input-group-btn">
 						<button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
 					</span>

@@ -1,6 +1,6 @@
 {
-  "name": "TacticsandTriumph",
-  "short_name": "Freeciv-TnT",
+  "name": "WebCiv",
+  "short_name": "WebCiv",
   "start_url": ".",
   "display": "fullscreen",
   "background_color": "#fff",

@@ -22,7 +22,7 @@ const props = {
 };
 
 app.get('/', (req, res) => {
-  res.render('index', {title: 'Homepage', props, msg});
+  res.render('index', {title: 'Play FreeCiv Online - WebCiv.org', props, msg});
 });
 
 app.get('/webclient/', (req, res) => {

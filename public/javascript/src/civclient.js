@@ -158,56 +158,56 @@ function civclient_init()
       sounds_enabled = true;
     }
   }
- 
+
   draw_map_grid = simpleStorage.get('mapgrid');
-  if (draw_map_grid == null) 
+  if (draw_map_grid == null)
     draw_map_grid = false;  // Default case
 
   map_drag_enabled = simpleStorage.get('mapdrag');
-  if (map_drag_enabled == null) 
+  if (map_drag_enabled == null)
     map_drag_enabled = true;  // Default case
 
   enable_goto_drag = simpleStorage.get('gotodrag');
-  if (enable_goto_drag == null) 
-    enable_goto_drag = true;  // Default case 
-    
+  if (enable_goto_drag == null)
+    enable_goto_drag = true;  // Default case
+
   enable_autoexplore = simpleStorage.get('explorekey');
-  if (enable_autoexplore == null) 
-    enable_autoexplore = true;  // Default case     
+  if (enable_autoexplore == null)
+    enable_autoexplore = true;  // Default case
 
   unit_click_menu = simpleStorage.get('unitclickmenu');
-  if (unit_click_menu == null) 
+  if (unit_click_menu == null)
     if (is_small_screen() || is_touch_device())
       unit_click_menu = true;  // Default for mobile
-    else 
+    else
       unit_click_menu = false;  // Default for PC
 
   draw_city_airlift_counter = simpleStorage.get('airlift');
-  if (draw_city_airlift_counter == null) 
+  if (draw_city_airlift_counter == null)
     draw_city_airlift_counter = false;  // Default case
 
   draw_city_mood = simpleStorage.get('drawMood');
-  if (draw_city_mood == null) 
+  if (draw_city_mood == null)
     draw_city_mood = false;  // Default case
 
   draw_stacked_unit_mode = simpleStorage.get('stackmode');
-  if (draw_stacked_unit_mode == null) 
+  if (draw_stacked_unit_mode == null)
     draw_stacked_unit_mode = 3;  // Default case
-  
+
   draw_city_output = simpleStorage.get('drawTiles');
-  if (draw_city_output == null) 
+  if (draw_city_output == null)
     draw_city_output = false;  // Default case
 
   scroll_narrow_x = simpleStorage.get('xScroll');
-  if (scroll_narrow_x == null) 
+  if (scroll_narrow_x == null)
     scroll_narrow_x = false;  // Default case
 
   show_empire_tab = simpleStorage.get('showEmpire');
-  if (show_empire_tab == null) 
+  if (show_empire_tab == null)
     show_empire_tab = false;  // Default case
-  
+
 /*show_warcalc = simpleStorage.get('showCalc');
-  if (show_warcalc == null) 
+  if (show_warcalc == null)
     show_warcalc = false;  // Default case */
 
   show_compass = simpleStorage.get('showCompass');
@@ -239,27 +239,27 @@ function civclient_init()
   } else hp_bar_offset = 0;
 
   draw_border_flags = simpleStorage.get('borderFlags');
-  if (draw_border_flags == null) 
+  if (draw_border_flags == null)
     draw_border_flags = false;  // Default case
 
   draw_tertiary_colors = simpleStorage.get('tricolore');
-  if (draw_tertiary_colors == null) 
+  if (draw_tertiary_colors == null)
     draw_tertiary_colors = false;  // Default case
   draw_border_mode |= draw_tertiary_colors;
 
   draw_thick_borders = simpleStorage.get('thickBorders');
-  if (draw_thick_borders == null) 
+  if (draw_thick_borders == null)
     draw_thick_borders = false;  // Default case
 
   draw_dashed_borders = simpleStorage.get('dashedBorders');
-  if (draw_dashed_borders == null) 
+  if (draw_dashed_borders == null)
     draw_dashed_borders = false;  // Default case
 
   draw_moving_borders = simpleStorage.get('movingBorders');
-  if (draw_moving_borders == null) 
+  if (draw_moving_borders == null)
     draw_moving_borders = false;  // Default case
-  // -------------------------------------------------------------------------------- 
-  
+  // --------------------------------------------------------------------------------
+
   /* Initialze audio.js music player */
   audiojs.events.ready(function() {
     var as = audiojs.createAll({
@@ -297,15 +297,15 @@ function civclient_init()
                 $.ajax({
                     type: 'POST',
                     url: "/validate_twit?username="+stored_username+"&type=type%3D"+link_game_type+"&port="+game_port,
-                });    
+                });
             }
             init_common_intro_dialog();
         },
-        error: function (request, textStatus, errorThrown) {  
+        error: function (request, textStatus, errorThrown) {
             swal("Error, can't get the game type!");
-            setSwalTheme();      
+            setSwalTheme();
         }
-    });    
+    });
   }
   setup_window_size();
   update_turn_change_timer(); // styles it for mobile or large screen.
@@ -319,7 +319,7 @@ function civclient_init()
   $(".ui-dialog-titlebar-close").css({"background":"none","background-image":"none","margin-top":"1px", "margin-left": "0px",
     "margin-right":"2px", "border":"none", "height":"16px"}); // solo el diablo sabe por que!
 
-  // Allows civclient.css to specify different styling for mobile vs. not mobile  
+  // Allows civclient.css to specify different styling for mobile vs. not mobile
   if (is_small_screen()) document.body.classList.add('mobile');
 }
 
@@ -329,7 +329,7 @@ function civclient_init()
 function init_common_intro_dialog() {
 
   if (observing) {
-    show_intro_dialog("Welcome to Freeciv-TnT",
+    show_intro_dialog("Welcome to Freeciv",
       "You have joined the game as an observer. Please enter your name:");
     $("#turn_done_button").button( "option", "disabled", true);
 
@@ -343,16 +343,16 @@ function init_common_intro_dialog() {
     if (is_longturn()) {
         setTimeout(show_longturn_intro_dialog, 300);
     } else {
-      show_intro_dialog("Welcome to Freeciv-TnT",
+      show_intro_dialog("Welcome to Freeciv",
         "You are about to join the game. Please enter your name:");
     }
   } else if ($.getUrlVar('action') == "earthload") {
-    show_intro_dialog("Welcome to Freeciv-TnT",
+    show_intro_dialog("Welcome to Freeciv",
       "You can now play Freeciv-web on the earth map you have chosen. " +
       "Please enter your name: ");
 
   } else if ($.getUrlVar('action') == "load") {
-    show_intro_dialog("Welcome to Freeciv-TnT",
+    show_intro_dialog("Welcome to Freeciv",
       "You are about to join this game server, where you can " +
       "load a savegame, tutorial, custom map generated from an image or a historical scenario map. " +
       "Please enter your name: ");
@@ -374,7 +374,7 @@ function init_common_intro_dialog() {
     if ($.getUrlVar('civserverport') != null) {
       hack_port = $.getUrlVar('civserverport');
     } else {
-      show_intro_dialog("Welcome to Freeciv-TnT",
+      show_intro_dialog("Welcome to Freeciv",
         "Hack mode disabled because civserverport wasn't specified. "
         + "Falling back to regular mode.");
       return;
@@ -385,36 +385,36 @@ function init_common_intro_dialog() {
     } else if (simpleStorage.hasKey("username")) {
       hack_username = simpleStorage.get("username");
     } else {
-      show_intro_dialog("Welcome to Freeciv-TnT",
+      show_intro_dialog("Welcome to Freeciv",
         "Hack mode disabled because \"username\" wasn't specified and no "
         + "stored user name was found. " +
         "Falling back to regular mode.");
       return;
     }
-    
+
     $.ajax({
         type: 'POST',
         url: "/validate_twit?username="+hack_username+"&type=action_hack&port="+hack_port,
-    });    
-    
+    });
+
   } else {
     show_intro_dialog("Singleplayer vs. Freeciv AI",
-      "<br>Creating an account is optional. Saved games need an account."); 
+      "<br>Creating an account is optional. Saved games need an account.");
       //+" (<a class='pwd_reset' href='#' style='color: #404A6F;'>Forgot password?</a>) Have fun! <br>");
-      //$(".pwd_reset").click(forgot_pbem_password); 
+      //$(".pwd_reset").click(forgot_pbem_password);
   }
   $("#pregame_message_area").html("<b>Game</b>: Select rules and game settings.<br>"+
   "<b>Load</b>: Load saved game.<br>"+
   "<b>Nation</b>: Pick nation.<br>"+
   "<b>Start</b>: Do <u>after</u> you set rules and settings.<br><br>"+
-  ($.getUrlVar('action') != "multi" 
+  ($.getUrlVar('action') != "multi"
      ? "<b>WARNING:</b> Default rules for Singleplayer are Classic (old).</b><br><br>"+
      "<u>All rulesets are suitable for Singleplayer.</u><br><br>"+
      "<b>NOTE:</b> Rulesets named 'Multiplayer' are simply the more modern rulesets that work well with any number of players.<br>"+
      "You can play Singleplayer with a Multiplayer ruleset if you wish to improve for multiplayer games with other humans.<br>"+
      "&nbsp;&bull; If you do this, try: &nbsp; <b>/set sciencebox 80</b> &nbsp; (or similar) to set a singleplayer research pace. <b>/help sciencebox</b> for more info.<br>"
      : "<b>WARNING:</b> Default rules for Multiplayer are Multiplayer+.</b><br><br>"   ) +
-  
+
   "Click <b>Game</b> button to select Game Version (ruleset).<br><br>"+
   "Advanced: You can tune more settings with the command line.<br>"+
   "&nbsp;&nbsp;&nbsp;To see all options: <b>/show all</b><br>"+
@@ -468,8 +468,8 @@ function show_dialog_message(title, message)
                      "minimize" : "ui-icon-circle-minus",
                      "restore" : "ui-icon-bullet"
                    }});
-        
-  // W is universal key to get out of anything and back to map                 
+
+  // W is universal key to get out of anything and back to map
   $(this).keypress(function(e){
     //alert("(this).keypress(e) event that was tied to dialog, keycode: "+e.keyCode);
     if (e.which == 119 || e.keyCode == 119 /* IE8: || (window.event != null && window.event.keyCode == 119)*/) {
@@ -485,9 +485,9 @@ function show_dialog_message(title, message)
 
   if (title=="Tile Information")
       $("#calc_tip").tooltip();
-  
+
   // Automatically close dialog after 38 seconds, because sometimes the dialog can't be closed manually.
-  // When can't it be closed manually? This made problems if two dialogs opened in <30 and first one 
+  // When can't it be closed manually? This made problems if two dialogs opened in <30 and first one
   // closes second one. Turning off and will fix some other way if needed:
   // dialog_message_close_task = setTimeout(close_dialog_message, 38000);
 
@@ -550,7 +550,7 @@ function update_timeout()
         $("#turn_done_button .ui-button-text").css("padding", "3px");
       } else if (is_small) {  // small screen && longturn:
         $("#turn_done_button").button("option", "label", "" + seconds_to_human_time(remaining) + ""); //timer only, don't cover tabs
-      } else {                          // big screen && longturn:   
+      } else {                          // big screen && longturn:
         $("#turn_done_button").button("option", "label", "Turn Done (" + seconds_to_human_time(remaining) + ")");
       }
       if (!is_touch_device()) $("#turn_done_button").tooltip({ disabled: false });
@@ -567,7 +567,7 @@ function update_turn_change_timer()
   turn_change_elapsed += 1;
   if (turn_change_elapsed < last_turn_change_time) {
     setTimeout(update_turn_change_timer, 1000);
-    $("#turn_done_button").button("option", "label", "Please wait (" 
+    $("#turn_done_button").button("option", "label", "Please wait ("
         + (last_turn_change_time - turn_change_elapsed) + ")");
   } else {
     turn_change_elapsed = 0;
@@ -581,7 +581,7 @@ function update_turn_change_timer()
     else {
       $("#turn_done_button").button("option", "label", "Turn Done");
       $("#turn_done_button_div").css("padding-right","1px");
-    } 
+    }
   }
 }
 

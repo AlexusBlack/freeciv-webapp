@@ -109,7 +109,7 @@ function check_browser_compatibility()
   if (isIE) {
     swal({
       title: "INCOMPATIBLE BROWSER",
-      text: "Internet Explorer is not supported. Freeciv-TnT is a game with video graphics that " +
+      text: "Internet Explorer is not supported. Freeciv is a game with video graphics that " +
             "require a modern browser. Internet Explorer is obsolete, and was replaced " +
             "by Microsoft's Edge browser. We suggest downloading a modern browser and coming " +
             "back to play! Suggestions: Chrome, Opera, Firefox, Safari, Chromium, or Edge. " +
@@ -169,12 +169,12 @@ function update_game_info_pregame()
     $("#load_game_button").hide();
     $("#pregame_settings_button").hide();
     game_info_html += "<p>";
-    game_info_html += "<h2>Freeciv-TnT: One Turn per Day game</h2>-Each player plays one turn every day, each turn lasts 23 hours.<br>";
+    game_info_html += "<h2>Freeciv: One Turn per Day game</h2>-Each player plays one turn every day, each turn lasts 23 hours.<br>";
 
 
   } else if ($.getUrlVar('action') == "multi") {
     game_info_html += "<p>";
-    game_info_html += "<h2>Freeciv-TnT Multiplayer game</h2>-You are now about to play a multiplayer game.<br>-Please wait until at least 2 players have joined the game, then click the start game button.";
+    game_info_html += "<h2>Freeciv Multiplayer game</h2>-You are now about to play a multiplayer game.<br>-Please wait until at least 2 players have joined the game, then click the start game button.";
     game_info_html += "</p>";
   }
 
@@ -1302,9 +1302,9 @@ function show_intro_dialog(title, message) {
 **************************************************************************/
 function show_longturn_intro_dialog() {
 
-  var title = "Welcome to Freeciv-TnT: One Turn per Day!";
+  var title = "Welcome to Freeciv: One Turn per Day!";
 
-  var message = "<br>This is a Freeciv-TnT: One Turn per Day game, which is a Freeciv multiplayer game "+
+  var message = "<br>This is a Freeciv: One Turn per Day game, which is a Freeciv multiplayer game "+
         "where the turns are 23 hours each, so players logs in once every day to do their turn. This format allows for more players to "+
         "play at once, more time to strategize, more time to coordinate with other players, and less rushing to get things done, which can "+
         "occur in a standard multi-player Freeciv game. It takes a lot longer to play a game, about 2 to 6 months, but you can play it just a "+
@@ -1318,7 +1318,7 @@ function show_longturn_intro_dialog() {
         "<div id='fc-signin2'></div><br><br><br><small>(Please disable adblockers, then reload the page, for Google login button to work)</small>";
 
   if (is_small_screen()) {
-    message = "Welcome to this Freeciv-TnT: One Turn per Day game! Enter your player name:"+
+    message = "Welcome to this Freeciv: One Turn per Day game! Enter your player name:"+
       "<br><br><table><tr><td>Player name:</td><td><input id='username_req' type='text' size='25' maxlength='31'></td></tr></table>" +
       " <br><br><span id='username_validation_result' style='display:none;'></span><br><br>" +
       "<div id='fc-signin2'></div><br>";
@@ -1480,7 +1480,7 @@ function show_new_user_account_dialog(gametype)
 {
 
   var title = "New user account";
-  var message = "Create a new Freeciv-TnT user account with information about yourself:<br><br>"
+  var message = "Create a new WebCiv user account with information about yourself:<br><br>"
                 + "<table><tr><td>Username:</td><td><input id='username' type='text' size='25' maxlength='30' onkeyup='return forceLower(this);'></td></tr>"
                 + "<tr><td>Email:</td><td><input id='email' type='email' size='25' maxlength='64' ></td></tr>"
                 + "<tr><td>Password:</td><td><input id='password' type='password' size='25'></td></tr>"
@@ -1490,7 +1490,7 @@ function show_new_user_account_dialog(gametype)
                 + "<u><i>You <b>can't recover</b> a lost password. Write it down or accept the 99% chance <b>you will lose your account</u>!</b></i>"
                 + (captcha_site_key != '' ? "Click to accept captcha to show that you are real human player:<br>" : "")
                 + "<div id='captcha_element'></div><br><br>"
-                + "<div><small><ul><li>It is free and safe to create a new account on Freeciv-TnT.</li>"
+                + "<div><small><ul><li>It is free and safe to create a new account on Freeciv.</li>"
                 + "<li>A user account allows you to save and load games.</li>"
                 + "<li>Other players can use your username to start Play-by-email games with you.</li>"
                 + "<li>You will NEVER receive spam. Your e-mail address will never be shared. Your password is stored securely as a secure hash <b>no one can recover</b>.</li>"
@@ -1576,7 +1576,7 @@ function show_new_user_account_dialog(gametype)
 }
 
 /**************************************************************************
-  This will try to create a new Freeciv-TnT user account with password.
+  This will try to create a new Freeciv user account with password.
 **************************************************************************/
 function create_new_freeciv_user_account_request(action_type)
 {
