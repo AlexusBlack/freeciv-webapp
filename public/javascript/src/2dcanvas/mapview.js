@@ -29,13 +29,16 @@ var city_canvas = null;
 var city_map_display_mode = 0;
 const CMDM_SIZE           = 0;   // size of city
 const CMDM_FINISHED       = 1;   // when output is finished
-const CMDM_BUY_COST       = 2;   // cost to buy item 
+const CMDM_BUY_COST       = 2;   // cost to buy item
 const CMDM_GROWS          = 3;   // turns to city growth
 const CMDM_SHIELDS        = 4;   // surplus shields
 const CMDM_POLLUTION      = 5;   // pollution
 // KEEP THIS PENULTIMATE, ONE BEFORE CMDM_LAST:
-const CMDM_CORRUPTION     = 6;   // corruption 
+const CMDM_CORRUPTION     = 6;   // corruption
 const CMDM_LAST           = 7;   // marks end of city_map_display_mode enum
+
+const allowed_tilesets = ['amplio2', 'space'];
+let tileset_to_use = allowed_tilesets[0];
 
 var tileset_images = [];
 var sprites = {};
@@ -58,7 +61,7 @@ var goto_colors_road   = ["40,10,0,.91","168,84,15,.91","65,18,2,.91","255,213,1
 var goto_colors_irr    = ["0,40,10,1","128,208,84,1","25,45,15,1","150,255,123,1"]; //connect irrigation
 
 /**************************************************************************
-  Cycles through city map display modes for citybar when user presses 
+  Cycles through city map display modes for citybar when user presses
   ctrl-shift-c
 **************************************************************************/
 function mapview_cycle_city_display_mode()
@@ -67,7 +70,7 @@ function mapview_cycle_city_display_mode()
 
   // Former code that shows an example of how we can filter the custom user info column in cities list.
   //if (client_rules_flag[CRF_DEMOCRACY_NONCORRUPT]
-  //    && !client_is_observer() 
+  //    && !client_is_observer()
   //    && governments[players[client.conn.playing.playerno].government].name == "Democracy") {
   //      last--;
   //}
@@ -98,7 +101,7 @@ function mapview_cycle_city_display_mode()
       break;
     case CMDM_CORRUPTION:
       add_client_message("Showing city corruption.");
-      break;                        
+      break;
   }
 }
 
@@ -110,9 +113,15 @@ function init_mapview()
 
   $("#canvas_div").append($('<canvas/>', { id: 'canvas'}));
 
+  // Identifying which tileset to use
+  const requested_tileset = $.getUrlVar('tileset');
+  if(requested_tileset !== undefined && allowed_tilesets.indexOf(requested_tileset) !== -1) {
+    tileset_to_use = requested_tileset;
+  }
+
   /* Loads the two tileset definition files */
   $.ajax({
-    url: "/javascript/2dcanvas/tileset_config_amplio2.js",
+    url: "/javascript/2dcanvas/tileset_config_" + tileset_to_use + ".js",
     dataType: "script",
     async: false
   }).fail(function() {
@@ -120,7 +129,7 @@ function init_mapview()
   });
 
   $.ajax({
-    url: "/javascript/2dcanvas/tileset_spec_amplio2.js",
+    url: "/javascript/2dcanvas/tileset_spec_" + tileset_to_use + ".js",
     dataType: "script",
     async: false
   }).fail(function() {
@@ -274,7 +283,7 @@ function init_cache_sprites()
 function mapview_window_resized ()
 {
   // prevent the glitch: window resizing caused scrolling up the chatbox
-  chatbox_scroll_to_bottom(false); 
+  chatbox_scroll_to_bottom(false);
 
   if (active_city != null || !resize_enabled) return;
   setup_window_size();
@@ -344,7 +353,7 @@ function canvas_put_select_rectangle(canvas_context, canvas_x, canvas_y, width, 
 
 
 /**************************************************************************
-  Gives mapview_put_city_bar() the number and colour it will put in the 
+  Gives mapview_put_city_bar() the number and colour it will put in the
   citybar, according to user selected city_map_display_mode.
 **************************************************************************/
 function mapview_get_citybar_num_and_color(city_id)
@@ -426,7 +435,7 @@ function mapview_get_citybar_num_and_color(city_id)
           col = "rgb(255,128,102)";
         }
       }
-      break; 
+      break;
   }
 
   return {"num":num, "col":col};
@@ -451,7 +460,7 @@ function mapview_put_city_bar(pcanvas, city, canvas_x, canvas_y) {
   const disorder = "%E2%9C%8A ";
   const lose_celeb_color = "rgba(0,0,0,1)";
   const start_celeb_color = "rgb(128,255,128)";
-  var start_celeb = false;  
+  var start_celeb = false;
   var lose_celeb = 0;  // uses 0,1 instead of false,true to also adjust inverted shadows to look better.
 
   // City mood:
@@ -470,15 +479,15 @@ function mapview_put_city_bar(pcanvas, city, canvas_x, canvas_y) {
           case "Disorder":
             mood_text = disorder;
             break;
-          case "Celebrating": 
+          case "Celebrating":
             mood_text = celeb;
             break;
         }
         if (happy_people >= city['size']*0.4999 && unhappy_angry_people==0 && city['size']>2)  {
-          // case handling: city is going to celebrate next turn. 
+          // case handling: city is going to celebrate next turn.
           if (mood_text == peace) start_celeb = true;
         }
-        else if (unhappy_angry_people > happy_people) { // case: city going into disorder          
+        else if (unhappy_angry_people > happy_people) { // case: city going into disorder
           if (mood_text == celeb) { // if losing celebration, invert size color and size shadow
             size_shadow_color = "rgba(128,128,128,1)";
             size_color = lose_celeb_color;
@@ -510,18 +519,18 @@ function mapview_put_city_bar(pcanvas, city, canvas_x, canvas_y) {
         if (game_info['airlift_dest_divisor'] == 0) { // if no dest_divisor, there is one counter for both source and dest
           // show source airlifts if it has them, otherwise keep the label blank:
           airlift_text = ( city['airlift']>0 ? " "+left_div+src_capacity+right_div : "");
-        } else if (city_has_building(city, improvement_id_by_name(B_AIRPORT_NAME))) {  
+        } else if (city_has_building(city, improvement_id_by_name(B_AIRPORT_NAME))) {
           // We get here if city has airport && airliftdestdivsor > 0. This means destination-airlifts has a separate counter
-          var airlift_receive_text;  
+          var airlift_receive_text;
           var airlift_receive_max_capacity = Math.round(city['size'] / game_info['airlift_dest_divisor']);
 
-          if (game_info['airlifting_style'] & DEST_UNLIMITED) airlift_receive_text = infinity_symbol;  
-          // else destination airlifts allowed = population of city / airliftdivisor, rounded to nearest whole number:   
-          else airlift_receive_text = Math.max(0,city["airlift"] + airlift_receive_max_capacity - effects[1][0]['effect_value']);             
-          
-          airlift_text = (city['airlift']>0  ||  airlift_receive_text==infinity_symbol  || src_capacity==infinity_symbol || airlift_receive_text != "0")  
-                          ? " "+left_div + src_capacity + bullet + airlift_receive_text + right_div  
-                          : " "+left_div + bullet + right_div ;  
+          if (game_info['airlifting_style'] & DEST_UNLIMITED) airlift_receive_text = infinity_symbol;
+          // else destination airlifts allowed = population of city / airliftdivisor, rounded to nearest whole number:
+          else airlift_receive_text = Math.max(0,city["airlift"] + airlift_receive_max_capacity - effects[1][0]['effect_value']);
+
+          airlift_text = (city['airlift']>0  ||  airlift_receive_text==infinity_symbol  || src_capacity==infinity_symbol || airlift_receive_text != "0")
+                          ? " "+left_div + src_capacity + bullet + airlift_receive_text + right_div
+                          : " "+left_div + bullet + right_div ;
         }
       }
     }
@@ -593,7 +602,7 @@ function mapview_put_city_bar(pcanvas, city, canvas_x, canvas_y) {
   pcanvas.fillText(text, canvas_x - Math.floor(txt_measure.width / 2) - 2, canvas_y - 1);
   pcanvas.fillStyle = size_color;
   pcanvas.fillText(size, canvas_x + Math.floor(txt_measure.width / 2) + 8, canvas_y - 1);
-  
+
   if (start_celeb) {
     mood_text = decodeURIComponent(mood_text); // only do when needed - performance
     pcanvas.fillStyle = start_celeb_color;
@@ -679,7 +688,7 @@ function mapview_put_border_line(pcanvas, dir, color, color2, color3, canvas_x, 
     if (border_anim>24*border_anim_delay)
       border_anim=0;
   }
-  
+
   switch (dir) {
     case DIR8_NORTH:
       //primary
