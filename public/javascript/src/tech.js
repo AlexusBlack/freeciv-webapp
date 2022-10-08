@@ -148,18 +148,33 @@ function init_tech_screen()
 
   if (is_tech_tree_init) return;
 
-  // if classic is not selected, default to mpplus reqtree. Now we don't have to make code changes every time
-  // we want to add or test a new ruleset:
-  if (ruleset_control['name'] != "Classic ruleset") reqtree = reqtree_mpplus;
-  if (ruleset_control['name'] == "Civ2Civ3 ruleset") reqtree = reqtree_civ2civ3;
-  if (ruleset_control['name'] == "SIM30") reqtree = reqtree_SIM30;
-  if (ruleset_control['name'] == "Multiplayer ruleset") reqtree = reqtree_multiplayer;
-  if (ruleset_control['name'] == "Longturn-Web-X ruleset") reqtree = reqtree_multiplayer;
-  if (ruleset_control['name'] == "Multiplayer-Plus ruleset") reqtree = reqtree_mpplus;
-  if (ruleset_control['name'] == "Multiplayer-Evolution ruleset") reqtree = reqtree_mpplus;
-  if (ruleset_control['name'].startsWith("Avant-garde")) reqtree = reqtree_avantgarde;
-  if (ruleset_control['name'].startsWith("MP2")) reqtree = reqtree_avantgarde;   // from MP2 Brava onward all MP2 rules start with "MP2"
-  if (client_rules_flag[CRF_MP2_C]) reqtree = reqtree_mp2c;
+  // Calcultation tech tree (dag) positions dynamically
+  let dag_data = Object.values(techs).map(t => {
+    return {
+      id: t.id.toString(),
+      parentIds: t.req.filter(i => i != 0).map(i => i.toString())
+    };
+  });
+  const dag = d3.dagStratify()(dag_data);
+  let nodeRadius = 50;
+  const layout = d3
+    .sugiyama() // base layout
+    .layering(d3.layeringLongestPath())
+    .decross(d3.decrossTwoLayer())
+    .nodeSize((node) => [(node ? 1.7 : 0.25) * nodeRadius, 5 * nodeRadius])
+    .coord(d3.coordCenter());
+
+  const dag_size = layout(dag);
+  gen_reqtree = {}
+  const dx = -125;
+  const dy = -50;
+  dag.descendants().forEach(node => gen_reqtree[node.data.id] = {
+    x: node.y + dx,
+    y: (dag_size.width - node.x) + dy
+  });
+
+  // Using generated req tree
+  reqtree = gen_reqtree
 
   tech_canvas = document.getElementById('tech_canvas');
   if (tech_canvas == null) {
@@ -198,7 +213,7 @@ function init_tech_screen()
     $("#tech_goal_box").css("font-size", "87%");
   }
 
-  if (!is_small_screen()) { 
+  if (!is_small_screen()) {
     $("#mouse_info_box").html("<div title='Right-click:     Scrolls the screen.\nMiddle-click:    Sets the Future Goal.\nALT+Right-click: alternate mid-click' style='margin-right:-10px;margin-bottom:10px;float:right;width:26px;height:20px;'>&#x2753;</div>");
     $("#mouse_info_box").css('cursor', "help");
     $("#mouse_info_box").tooltip();
@@ -236,7 +251,7 @@ function update_tech_tree()
       // Alternating line colour sequence, each tech gets a different line colour to differentiate.
       var sequence = 1+Math.round(dy/55)+Math.round(dx/45);      // Create a "seed" that bumps up as we span the canvas vertically and horizontally
       sequence = sequence - (sequence-sequence%9);               // This creates a colour number from 0-8 out of our "seed"
-     
+
       // known tech connecting to known tech: use black line
       if (tech_known(ptech['rule_name']) && tech_known(techs[rid]['rule_name'])) {
         tech_canvas_ctx.strokeStyle = 'rgb(88, 88, 88)';
@@ -266,7 +281,7 @@ function update_tech_tree()
       var radius = 2;
       tech_canvas_ctx.lineWidth = 4;
       tech_canvas_ctx.beginPath();
-      tech_canvas_ctx.arc(dx + hx+radius+node_offset, dy + hy, radius, 0, 2 * Math.PI, false);  
+      tech_canvas_ctx.arc(dx + hx+radius+node_offset, dy + hy, radius, 0, 2 * Math.PI, false);
       tech_canvas_ctx.stroke();
     }
 
@@ -388,7 +403,7 @@ function update_tech_tree()
           if (ptype['bombard_rate']<-1) continue;  // if major nukes are OFF, suppress illegal prod choice.
         }
       }
-      
+
       var sprite = sprites[tileset_unit_type_graphic_tag(ptype)];
       if (sprite != null) {
         tech_canvas_ctx.drawImage(sprite, x + 50 + ((tech_things++) * 30), y + 23, 28, 24);
@@ -400,7 +415,7 @@ function update_tech_tree()
       var pimpr = primprovements[i];
 
       // Suppress improvements if server settings don't allow them:
-      if ((!server_settings['nukes_major']['val'] || !server_settings['nukes_minor']['val']) 
+      if ((!server_settings['nukes_major']['val'] || !server_settings['nukes_minor']['val'])
             && pimpr['name'] == "Enrichment Facility") {
               continue; // if major nukes are OFF, suppress illegal prod choice. if minor nukes are off, then major nukes have to be off.
       }
@@ -409,7 +424,7 @@ function update_tech_tree()
         continue; // if minor nukes are OFF, suppress illegal prod choice.
       }
       if (pimpr.name != alphanumeric_cleaner(pimpr.name)) continue; // zero-width space, duplicate great/small wonder pair. no need to show both sprites.
-    
+
 
       var sprite = sprites[tileset_building_graphic_tag(pimpr)];
       if (sprite != null) {
@@ -484,13 +499,13 @@ function update_tech_screen()
 
   var research_goal_text = "No research target selected.<br>Please select a technology now";
   if (techs[client.conn.playing['researching']] != null) {
-    research_goal_text = touch_device ? "Current Research: " : "Research:"; 
+    research_goal_text = touch_device ? "Current Research: " : "Research:";
     research_goal_text += techs[client.conn.playing['researching']]['name'];
   }
   if (techs[client.conn.playing['tech_goal']] != null) {
     if (!touch_device) research_goal_text += "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Future Goal: ";
     else research_goal_text += "&nbsp;<font color='lightskyblue'>Future Goal:</font>"
-    
+
     research_goal_text += techs[client.conn.playing['tech_goal']]['name'];
   }
   $("#tech_goal_box").html(research_goal_text);
@@ -518,7 +533,7 @@ function update_tech_screen()
       default:
         fs = "90%";
     } //hack to fit some techs on 768px screens
-    var tech_help_text = html_safe(cleaned_text(techs[clicked_tech_id].helptext)); // splice out the └ that Chrome renders for end of line 
+    var tech_help_text = html_safe(cleaned_text(techs[clicked_tech_id].helptext)); // splice out the └ that Chrome renders for end of line
 
     if (touch_device) $("#tech_results").css("margin-left","-22px");
     $("#tech_result_text").html("<span style='font-size:"+fs+"' title='"+tech_help_text+"' id='tech_advance_helptext'>" + get_advances_text(clicked_tech_id)
@@ -583,9 +598,9 @@ function get_advances_text(tech_id)
     + format_list_with_intro(' enables',
       [
         format_list_with_intro('', get_utypes_from_tech(tech_id)
-          .map(unit => tech_span(unit.name, unit.id, null, 
+          .map(unit => tech_span(unit.name, unit.id, null,
             "A:"+fractionalize(utype_real_base_attack_strength(unit)) +" D:"+fractionalize(utype_real_base_defense_strength(unit)) +(unit.firepower>1?" F:"+unit.firepower:"") +" H:"+unit.hp
-            +" M:"+move_points_text(unit.move_rate+(unit.move_bonus[0]?unit.move_bonus[0]:0),true)+(unit.fuel?"("+unit.fuel+")":"") 
+            +" M:"+move_points_text(unit.move_rate+(unit.move_bonus[0]?unit.move_bonus[0]:0),true)+(unit.fuel?"("+unit.fuel+")":"")
             +(unit.transport_capacity?" C:"+unit.transport_capacity:"") +" Cost:"+unit.build_cost +"\n\n"
             + html_safe(cleaned_text(unit.helptext))))),
         format_list_with_intro('', get_improvements_from_tech(tech_id)
@@ -669,7 +684,7 @@ function tech_mapview_mouse_click(e)
 
       if (tech_mouse_x > x && tech_mouse_x < x + tech_item_width
           && tech_mouse_y > y && tech_mouse_y < y + tech_item_height) {
-        if (mouse_button == 2 || (mouse_button == 3 && e.altKey)) send_player_tech_goal(ptech['id']);        
+        if (mouse_button == 2 || (mouse_button == 3 && e.altKey)) send_player_tech_goal(ptech['id']);
         else if (player_invention_state(client.conn.playing, ptech['id']) == TECH_PREREQS_KNOWN) {
           var adjusted_tech_cost = Math.max(1, Math.floor(ptech['cost']*game_info['sciencebox']/100.0))
           if (client.conn.playing['bulbs_researched'] >= adjusted_tech_cost) {
@@ -765,7 +780,7 @@ function check_queued_tech_gained_dialog()
 }
 
 /**************************************************************************
- This will show the tech gained dialog for normal games. This will store 
+ This will show the tech gained dialog for normal games. This will store
  the gained tech, for pbem games, to be displayed at beginning of next turn.
 **************************************************************************/
 function queue_tech_gained_dialog(tech_gained_id)
@@ -898,12 +913,12 @@ function show_tech_info_dialog(tech_name, unit_type_id, improvement_id)
   $("#tech_tab_item").css("color", "#aa0000");
 
   var message = "";
-  
+
   if (unit_type_id != null) {
      var punit_type = unit_types[unit_type_id];
      var move_bonus = parseInt(punit_type['move_bonus'][0]) ? parseInt(punit_type['move_bonus'][0]) : 0;
      var move_rate = ""; move_rate += move_points_text((parseInt(punit_type['move_rate'])+move_bonus), false);
-   
+
      message += "<b>Unit info</b>: " + cleaned_text(punit_type['helptext']) + "<br>"
      + "</b><br>Cost: <b>" + punit_type['build_cost']
      + "</b><br>Attack: <b>" + utype_real_base_attack_strength(punit_type)//+ punit_type['attack_strength']
@@ -932,7 +947,7 @@ function show_tech_info_dialog(tech_name, unit_type_id, improvement_id)
       message += "<b>"+tech_name+"</b>"+format_list_with_intro(' enables',
       [
         format_list_with_intro('', get_utypes_from_tech(tech_id)
-          .map(unit => tech_span(unit.name, unit.id, null, html_safe(cleaned_text(unit.helptext))))),  
+          .map(unit => tech_span(unit.name, unit.id, null, html_safe(cleaned_text(unit.helptext))))),
         format_list_with_intro('', get_improvements_from_tech(tech_id)
           .map(impr => tech_span(impr.name, null, impr.id, html_safe(cleaned_text(impr.helptext))))),
         format_list_with_intro('', Object.keys(techs)
@@ -1033,11 +1048,11 @@ function update_tech_dialog_cursor()
             fs = "90%";
         } //hack to fit some techs on 768px screens
         //if ( ptech['name']=="Space Flight" || ptech['name']=="Automobile" || ptech['name']=="Rocketry") fs="80%;"; else fs="90%;"; //hack to fit 2 techs on 768px screens
-       
+
         var is_wide_screen = $(window).width()<1590 ? false : true;
-        var tech_help_text = html_safe(cleaned_text(techs[ptech['id']].helptext));  // splice out the └ that Chrome renders for end of line 
-    
-        $("#tech_result_text").html("<span title='"+tech_help_text+"' style='margin-left:-4px; font-size:"+fs+"' id='tech_advance_helptext'>"+get_advances_text(ptech['id']) 
+        var tech_help_text = html_safe(cleaned_text(techs[ptech['id']].helptext));  // splice out the └ that Chrome renders for end of line
+
+        $("#tech_result_text").html("<span title='"+tech_help_text+"' style='margin-left:-4px; font-size:"+fs+"' id='tech_advance_helptext'>"+get_advances_text(ptech['id'])
           + "</span><span style='color: #ffd588; font-size:"+fs+"'>&nbsp;"+ (is_wide_screen ? tech_help_text : "") + "</span>");
         $("#tech_advance_helptext").tooltip({ disabled: false });
       }
@@ -1159,7 +1174,7 @@ function get_current_bulbs_output_text(cbo)
   if (cbo.pooled) {
     text = text + " (" + (cbo.team_bulbs - cbo.team_upkeep) + " team total)";
   }
-  
+
   if (cbo.team_bulbs > 0 && client.conn.playing['researching_cost'] != 0) {
     var turns_left = Math.ceil((client.conn.playing['researching_cost'] - client.conn.playing['bulbs_researched']) / cbo.team_bulbs);
     var turns_left_plural = (turns_left > 1) ? " turns)" : " turn)";
@@ -1167,7 +1182,7 @@ function get_current_bulbs_output_text(cbo)
     text = text + turns_left_text;
   }
   // stored globally to avoid excessive recalculation for multiple uses
-  bulb_output_text = text; 
+  bulb_output_text = text;
   return text;
 }
 
