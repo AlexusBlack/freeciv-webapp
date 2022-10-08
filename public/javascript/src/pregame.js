@@ -700,6 +700,7 @@ function pregame_settings()
       + "<tr title='Ruleset version'><td>Ruleset:</td>"
       + "<td><select name='ruleset' id='ruleset'>"
       + "<option value='mp2-caravel'>Multiplayer 2.3 Caravel</option>"
+      + "<option value='mp2s-sputnik'>Multiplayer 2.3-Space: Sputnik</option>"
       + "<option value='mp2-brava'>Multiplayer 2.2 Brava</option>"
       + "<option value='mp2b-occ'>MP 2.2 One City Challenge</option>"
       + "<option value='mp2b-desert'>MP 2.2 Desert</option>"
