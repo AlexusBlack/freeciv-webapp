@@ -458,7 +458,7 @@ function send_pbem_invitation(email)
 **************************************************************************/
 function create_pbem_players()
 {
-  if (ws != null && ws.readyState === 1) {
+  if (transport && transport.isConnected()) {
     if (opponents != null && opponents.length > 0) {
       for (var i = 0; i < opponents.length; i++) {
         send_message("/create " + opponents[i]);

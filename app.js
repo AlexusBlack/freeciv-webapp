@@ -7,7 +7,18 @@ const port = 3000;
 // Predefined text lines
 const msg= ini.parse(fs.readFileSync('./text.properties', 'utf-8'));
 
-app.use(express.static('public'));
+app.use(express.static('public', {
+  setHeaders: (res, path) => {
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+  }
+}));
+app.use((req, res, next) => {
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+  next();
+});
+
 app.set('view engine', 'ejs');
 
 const props = {

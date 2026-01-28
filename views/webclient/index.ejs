@@ -18,6 +18,18 @@ var fcwDebug=<%= props.fcwDebug %>;
 <script src="https://apis.google.com/js/platform.js"></script>
 
 <script type="text/javascript" src="/javascript/server_url.js?ts=<%= props.buildVersion %>"></script>
+<script>
+var Module = typeof Module != 'undefined' ? Module : {
+  locateFile: function(path, prefix) {
+    if (path.endsWith('.data')) {
+      return '/wasm/' + path;
+    }
+    return prefix + path;
+  },
+  arguments: ['-d', '4'],
+};
+</script>
+<script type="text/javascript" src="/wasm/freeciv-web.js?ts=<%= props.buildVersion %>"></script>
 <script type="text/javascript" src="/javascript/webclient.min.js?ts=<%= props.buildVersion %>"></script>
 
 <script type="text/javascript" src="/music/audio.min.js"></script>

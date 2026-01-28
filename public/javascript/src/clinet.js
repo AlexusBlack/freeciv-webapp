@@ -27,7 +27,7 @@ var debug_client_speed_list = [];
 
 var freeciv_version = "+Freeciv.Web.Devel-3.1";
 
-var ws = null;
+var transport = null;
 var civserverport = null;
 
 var ping_last = new Date().getTime();
@@ -53,11 +53,24 @@ function network_init_manual_hack(civserverport_manual, username_manual,
     });
 }
 
+// New helper for WASM mode detection
+function is_wasm_mode() {
+    return $.getUrlVar('wasm') === 'true' || is_wasm_server_available();
+}
+
 /****************************************************************************
   Initialized the Network communication, by requesting a valid server port.
 ****************************************************************************/
 function network_init()
 {
+  // Check for local WASM server mode
+  if (is_wasm_mode()) {
+      transport = create_transport({ force_wasm: true });
+      setup_transport_handlers();
+      transport.connect();
+      return;
+  }
+
   if (!("WebSocket" in window)) {
     swal("WebSockets not supported", "", "error");
     setSwalTheme();
@@ -93,24 +106,35 @@ function network_init()
 /****************************************************************************
   Initialized the WebSocket connection.
 ****************************************************************************/
-function websocket_init()
+function transport_init()
 {
   $.blockUI({ message: "<h1 style='text-align:center'><font color='#ccc'>Connecting...</font></h1>"});
+
+  if (transport_type === 'vsocket') {
+      // Already connected in network_init for WASM mode
+      return;
+  }
+
+  // WebSocket mode
   var proxyport = 1000 + parseFloat(civserverport);
   // var ws_protocol = ('https:' == window.location.protocol) ? "wss://" : "ws://";
   var ws_protocol = ('https:' == window.location.protocol) ? "wss:" : "ws:";
-  var port = window.location.port ? (':' + window.location.port) : '';
-  //ws = new WebSocket(ws_protocol + window.location.hostname + port + "/civsocket/" + proxyport);
-  // ws = new WebSocket(ws_protocol + window.location.hostname + ':' + proxyport + "/civsocket/" + proxyport);
-  ws = new WebSocket(ws_protocol + freeciv_api_server_url + "/civsocket/" + proxyport);
+  var url = ws_protocol + freeciv_api_server_url + "/civsocket/" + proxyport;
 
-  ws.onopen = check_websocket_ready;
+  transport = create_transport({ url: url });
+  setup_transport_handlers();
+  transport.connect();
+}
 
-  ws.onmessage = function (event) {
+// Unified transport event handlers
+function setup_transport_handlers() {
+  transport.onopen = check_transport_ready;
+
+  transport.onmessage = function (data) {
      if (typeof client_handle_packet !== 'undefined') {
-       client_handle_packet(JSON.parse(event.data));
+       client_handle_packet(JSON.parse(data));
        if (DEBUG_LOG_PACKETS)
-         console.log("*** INCOMING PACKET>>>>>"+event.data);
+         console.log("*** INCOMING PACKET>>>>>"+data);
 
      } else {
        console.error("Error, freeciv-web not compiled correctly. Please "
@@ -118,7 +142,7 @@ function websocket_init()
      }
   };
 
-  ws.onclose = function (event) {
+  transport.onclose = function (event) {
    var cur_time = new Date().getTime()
    if (cur_time - last_user_action_time > kick_inactive_time) {
     swal("Inactivity Timeout", "Session closed: "+(kick_inactive_time/60000)
@@ -144,9 +168,9 @@ function websocket_init()
    clearInterval(ping_timer);
   };
 
-  ws.onerror = function (evt) {
+  transport.onerror = function (evt) {
    show_dialog_message("Network error", "A problem occured with the "
-                       + document.location.protocol + " WebSocket connection to the server: " + ws.url);
+                       + document.location.protocol + " WebSocket connection to the server: " + transport.url);
    console.error("WebSocket error: Unable to communicate with server using "
                  + document.location.protocol + " WebSockets. Error: " + evt);
   };
@@ -156,9 +180,9 @@ function websocket_init()
   When the WebSocket connection is open and ready to communicate, then
   send the first login message to the server.
 ****************************************************************************/
-function check_websocket_ready()
+function check_transport_ready()
 {
-  if (ws != null && ws.readyState === 1) {
+  if (transport && transport.isConnected()) {
     var sha_password = null;
     var stored_password = simpleStorage.get("password", "");
     if (stored_password != null && stored_password != false) {
@@ -190,7 +214,7 @@ function check_websocket_ready()
 
     $.unblockUI();
   } else {
-    setTimeout(check_websocket_ready, 500);
+    setTimeout(check_transport_ready, 500);
   }
 }
 
@@ -199,8 +223,8 @@ function check_websocket_ready()
 ****************************************************************************/
 function network_stop()
 {
-  if (ws != null) ws.close();
-  ws = null;
+  if (transport != null) transport.close();
+  transport = null;
 }
 
 /****************************************************************************
@@ -208,7 +232,7 @@ function network_stop()
 ****************************************************************************/
 function send_request(packet_payload)
 {
-  if (ws != null) {
+  if (transport != null) {
 
     //console.log("Received outgoing pid=="+object_packet['pid'])
     /* workaround current 3.1 server uses actionenablers to filter activities
@@ -239,7 +263,7 @@ function send_request(packet_payload)
         }
         /* END Client workaround of 3.1 server bug ******************************/
 
-    ws.send(packet_payload);
+    transport.send(packet_payload);
   }
 
   if (DEBUG_LOG_PACKETS)
