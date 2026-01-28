@@ -68,6 +68,12 @@ class WebSocketTransport {
 
 /**************************************************************************
  * Virtual Socket Transport (new WASM-based communication)
+ *
+ * Freeciv JSON packet format:
+ *   [2 bytes: length (uint16 big-endian)] [JSON string] [1 byte: null terminator]
+ *
+ * The length field includes itself, the JSON data, and the null terminator.
+ * So for JSON of length L, total packet = L + 3, and length field = L + 3.
  **************************************************************************/
 class VirtualSocketTransport {
     constructor() {
@@ -78,13 +84,14 @@ class VirtualSocketTransport {
         this.onclose = null;
         this.onerror = null;
         this.connected = false;
-        this.receiveBuffer = '';
+        this.receiveBuffer = new Uint8Array(0);  // Binary buffer for framed packets
+        this.receiveBufferAcc = new Uint8Array(0);  // Binary buffer for framed packets
     }
 
     connect() {
         try {
-            // Call Emscripten-exported function
-            this.fd = Module._vsock_js_connect();
+            // Call Emscripten-exported function (client_id = 0 for single connection)
+            this.fd = Module._vsock_js_connect(0);
 
             if (this.fd >= 0) {
                 this.connected = true;
@@ -106,12 +113,29 @@ class VirtualSocketTransport {
         if (!this.connected || this.fd < 0) return false;
 
         try {
-            // Convert string to bytes and send via virtual socket
-            var dataBytes = new TextEncoder().encode(data);
-            var ptr = Module._malloc(dataBytes.length);
-            Module.HEAPU8.set(dataBytes, ptr);
+            // Convert JSON string to UTF-8 bytes
+            var jsonBytes = new TextEncoder().encode(data);
 
-            var result = Module._vsock_js_send(0, ptr, dataBytes.length);
+            // Packet format: [2-byte length][JSON][null terminator]
+            // Length field = 2 (length) + jsonBytes.length + 1 (null) = jsonBytes.length + 3
+            var packetLen = jsonBytes.length + 3;
+            var packet = new Uint8Array(packetLen);
+
+            // Write 2-byte length prefix (big-endian)
+            packet[0] = (packetLen >> 8) & 0xFF;  // high byte
+            packet[1] = packetLen & 0xFF;         // low byte
+
+            // Copy JSON data starting at offset 2
+            packet.set(jsonBytes, 2);
+
+            // Null terminator at the end (Uint8Array is zero-initialized, but be explicit)
+            packet[packetLen - 1] = 0;
+
+            // Allocate WASM memory and copy packet
+            var ptr = Module._malloc(packet.length);
+            Module.HEAPU8.set(packet, ptr);
+
+            var result = Module._vsock_js_send(0, ptr, packet.length);
 
             Module._free(ptr);
             return result >= 0;
@@ -125,22 +149,28 @@ class VirtualSocketTransport {
         if (!this.connected || this.fd < 0) return;
 
         try {
-            var available = Module._vsock_js_poll();
+            // Check if server has data to send to us
+            var hasData = Module._vsock_js_has_data(0);
 
-            if (available > 0) {
+            if (hasData > 0) {
                 // Allocate receive buffer
-                var bufSize = Math.min(available, 65536);
+                var bufSize = 65536;
                 var ptr = Module._malloc(bufSize);
 
                 var bytesRead = Module._vsock_js_recv(0, ptr, bufSize);
 
                 if (bytesRead > 0) {
-                    // Extract data and decode
-                    var data = new Uint8Array(Module.HEAPU8.buffer, ptr, bytesRead);
-                    var text = new TextDecoder().decode(data);
+                    // Copy data from WASM heap
+                    var newData = new Uint8Array(Module.HEAPU8.buffer, ptr, bytesRead).slice();
 
-                    // Handle packet framing (JSON messages may be split)
-                    this._processReceivedData(text);
+                    // Append to receive buffer
+                    var combined = new Uint8Array(this.receiveBuffer.length + newData.length);
+                    combined.set(this.receiveBuffer);
+                    combined.set(newData, this.receiveBuffer.length);
+                    this.receiveBuffer = combined;
+
+                    // Process complete packets
+                    this._processReceivedData();
                 }
 
                 Module._free(ptr);
@@ -150,24 +180,67 @@ class VirtualSocketTransport {
         }
     }
 
-    _processReceivedData(text) {
-        // Buffer incoming data and extract complete JSON packets
-        this.receiveBuffer += text;
-
-        // Try to parse complete JSON packets
-        // Freeciv packets are JSON arrays or objects
-        var startIdx = 0;
-        while (startIdx < this.receiveBuffer.length) {
-            try {
-                // Find packet boundary (assumes newline-delimited or complete JSON)
-                var packet = JSON.parse(this.receiveBuffer.substring(startIdx));
-                this.onmessage && this.onmessage(JSON.stringify(packet));
-                this.receiveBuffer = '';
-                break;
-            } catch (e) {
-                // Incomplete JSON, wait for more data
-                break;
+    _processReceivedData() {
+        // Process length-prefixed packets from binary buffer
+        while (this.receiveBuffer.length >= 2) {
+            if(this.receiveBuffer.at(-1) != 0) {
+                // add receiveBuffer to receiveBufferAcc
+                var combined = new Uint8Array(this.receiveBufferAcc.length + this.receiveBuffer.length);
+                combined.set(this.receiveBufferAcc);
+                combined.set(this.receiveBuffer, this.receiveBufferAcc.length);
+                this.receiveBufferAcc = combined;
+                this.receiveBuffer = new Uint8Array(0);
+                continue;
             }
+            // Append receiveBuffer to receiveBufferAcc
+            var combined = new Uint8Array(this.receiveBufferAcc.length + this.receiveBuffer.length);
+            combined.set(this.receiveBufferAcc);
+            combined.set(this.receiveBuffer, this.receiveBufferAcc.length);
+            this.receiveBufferAcc = combined;
+            this.receiveBuffer = new Uint8Array(0);
+
+            // // Read 2-byte length (big-endian)
+            // var packetLen = (this.receiveBuffer[0] << 8) | this.receiveBuffer[1];
+
+            // // Sanity check
+            // if (packetLen < 3 || packetLen > 65536) {
+            //     console.error('Invalid packet length:', packetLen);
+            //     this.receiveBuffer = new Uint8Array(0);
+            //     break;
+            // }
+
+            // // Check if we have the complete packet
+            // if (this.receiveBuffer.length < packetLen) {
+            //     // Wait for more data
+            //     break;
+            // }
+            // Extract JSON data (skip 2-byte header, exclude null terminator)
+            // var jsonData = this.receiveBuffer.slice(2, this.receiveBuffer.length - 1);
+            // var jsonStr = new TextDecoder().decode(jsonData);
+
+            // // Remove processed packet from buffer
+            // // this.receiveBuffer = this.receiveBuffer.slice(packetLen);
+            // this.receiveBuffer = this.receiveBuffer.slice(this.receiveBuffer.length);
+
+            let receivedString = new TextDecoder().decode(this.receiveBufferAcc);
+            let packets = receivedString.split('\x00');
+            // filter out empty packets
+            packets = packets.filter(Boolean);
+
+            packets.forEach(p => {
+              // Parse and deliver the packet
+              try {
+                  var packet = JSON.parse(p);
+                  // this.onmessage && this.onmessage(JSON.stringify(packet));
+                  this.onmessage && this.onmessage(JSON.stringify([packet]));
+              } catch (e) {
+                  console.error('Failed to parse JSON packet:', p, e);
+              }
+            });
+            // this.receiveBuffer = new Uint8Array(0);
+            this.receiveBufferAcc = new Uint8Array(0);
+
+
         }
     }
 
@@ -191,6 +264,7 @@ class VirtualSocketTransport {
         }
 
         this.connected = false;
+        this.receiveBuffer = new Uint8Array(0);
         this.onclose && this.onclose({ code: 1000, reason: 'Client closed' });
     }
 }

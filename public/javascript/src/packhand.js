@@ -17,9 +17,9 @@
 
 ***********************************************************************/
 
-// Player income is calculated two ways. Sometimes the server gives it to us 
+// Player income is calculated two ways. Sometimes the server gives it to us
 // for free. When it doesn't, we need to calculate it in the client. This
-// keeps track of when our info for this is fresh from either source. 
+// keeps track of when our info for this is fresh from either source.
 var income_needs_refresh = false;
 
 var last_ground_attack_time = 0;
@@ -182,7 +182,7 @@ function handle_tile_info(packet)
 
 /**************************************************************************
   intercepts the E_UNIT_ACTION_TARGET_HOSTILE event which is only used
-  for ground attacks, then processes what needs to happen from it. 
+  for ground attacks, then processes what needs to happen from it.
 **************************************************************************/
 function handle_iPillage_event(message, tile_id)  // iPillage.
 {
@@ -223,7 +223,7 @@ function delayed_explosion_helper(tile_id) {
 }
 
 /**************************************************************************
- Intercepts server messages about city governor and puts them in the 
+ Intercepts server messages about city governor and puts them in the
  Governor tab where they can be read in timely manner, since map chatbox
  is not open during this time.
 **************************************************************************/
@@ -241,7 +241,7 @@ function handle_city_governor_event(message)
  100% complete.
 **************************************************************************/
 function handle_chat_msg(packet)
-{  
+{
   var message = packet['message'];
   var event = packet['event'];
   var conn_id = packet['conn_id'];
@@ -249,12 +249,12 @@ function handle_chat_msg(packet)
 
   const DEFAULT_OFF_WHITE_COLOR = "#D0C8C0";
 
-  // Dirty way to remove the server forcing blinding white font tags into every 
+  // Dirty way to remove the server forcing blinding white font tags into every
   // event we get, disallowing us to set the classes ourselves!
   // TODO: find out where the server is doing this and remove it: it will
   // decrease bandwidth volume also!
-  
-  
+
+
   /* Shouldn't be needed anymore:
   if (event != E_CHAT_MSG) message.replace('<font color="#FFFFFF">', '');
   else message.replace("#FFFFFF", DEFAULT_OFF_WHITE_COLOR);
@@ -340,8 +340,8 @@ function decode_user_hyperlinks(message)
 {
   var ptile = null;
 
-  // If we are here, then this message contains a link. If it is also going from oneself 
-  // to onself, it is probably a SafeLink. SafeLinks are forced to go to oneself only. 
+  // If we are here, then this message contains a link. If it is also going from oneself
+  // to onself, it is probably a SafeLink. SafeLinks are forced to go to oneself only.
   // In any case, all links in messages going from oneself to oneself will be interpreted
   // as such. Therefore, if this is the case, repackage the presentation of this message here:
   /* Old code for fixing historic chat messages and Private Links.
@@ -368,21 +368,21 @@ function decode_user_hyperlinks(message)
       var element = html_emoji_from_universal(freemoji_name);
       message = message.replace( replace_me, (element) );
   }
-  
+
   // EXTRACT ENCODED TILE LINKS
   if (message.includes("%%tile")) {
     assert_escape = 0;
     var tile_x, tile_y, tile_link;
     var tile_extract, tile_id;
     var pcity, city_name;
-        
+
     while (message.includes("%%tile") && message.includes("~%")) {
       if (assert_escape++ > 4) break; // insurance against badly constructed links
 
       tile_extract = message.substring(0,message.indexOf("~%")+2).match("%%tile(.*)~%");
       tile_id = tile_extract[1]; // string between %%tile and ~%
-    
-      if (tiles[tile_id] != null) { 
+
+      if (tiles[tile_id] != null) {
         ptile = tiles[tile_id];
         pcity = tile_city(ptile);
         city_name = (pcity == null) ? "" : pcity.name+":";
@@ -409,8 +409,8 @@ function decode_user_hyperlinks(message)
       unit_name = message.match("_%(.*)~~");
       if (unit_name==null) unit_name = ""
       unit_id = unit_extract[1]; // String between %%unit and _%
-      
-      if (units[unit_id] != null) { 
+
+      if (units[unit_id] != null) {
         punit = units[unit_id];
         var nationality = nations[players[punit['owner']]['nation']]['adjective'];
         var hovertext = get_unit_city_info(punit);
@@ -526,10 +526,10 @@ function handle_web_city_info_addition(packet)
   }
   /* Update active tabs affected by this info */
   bulbs_output_updater.update();
-  var active_tab = $("#tabs").tabs("option", "active"); 
+  var active_tab = $("#tabs").tabs("option", "active");
   if (active_tab == TAB_CITIES) {
     city_screen_updater.update();
-  } else if (active_tab == TAB_EMPIRE) {  
+  } else if (active_tab == TAB_EMPIRE) {
     empire_screen_updater.update();  // TEST:is this the right way to update empire screen?
   }
   income_needs_refresh = true;
@@ -553,10 +553,10 @@ function handle_city_short_info(packet)
 
   /* Update active tabs affected by this info */
   bulbs_output_updater.update();
-  var active_tab = $("#tabs").tabs("option", "active"); 
+  var active_tab = $("#tabs").tabs("option", "active");
   if (active_tab == TAB_CITIES) {
     city_screen_updater.update();
-  } else if (active_tab == TAB_EMPIRE) {  
+  } else if (active_tab == TAB_EMPIRE) {
     empire_screen_updater.update();  // TEST:is this the right way to update empire screen?
   }
   income_needs_refresh = true;
@@ -594,16 +594,16 @@ function handle_player_info(packet)
   /*
   // if server has sent a nation color change:
   if (packet['color_red']) {
-    if (packet['playerno'] && players[packet['playerno']] && nations[players[packet['playerno']]['nation']])  { 
+    if (packet['playerno'] && players[packet['playerno']] && nations[players[packet['playerno']]['nation']])  {
           var pplayer = players[packet['playerno']];
           var pcolor = "rgb("+packet['color_red']+","+packet['color_green']+","+packet['color_blue']+")";
           nations[pplayer['nation']]['color'] = pcolor;
-    } 
+    }
   } */
 
   /* Update active tabs affected by this info */
-  var active_tab = $("#tabs").tabs("option", "active"); 
-  if (active_tab == TAB_EMPIRE) {  
+  var active_tab = $("#tabs").tabs("option", "active");
+  if (active_tab == TAB_EMPIRE) {
     empire_screen_updater.update();  // TEST:is this the right way to update empire screen?
   }
 }
@@ -727,7 +727,7 @@ function handle_ruleset_control(packet)
 
   var rules = ruleset_control['name'];
 
-  // Establish legacy compatibility for all MP2 rulesets from Brava onward: 
+  // Establish legacy compatibility for all MP2 rulesets from Brava onward:
   if (rules.startsWith("MP2")) {
     rules = "MP2";
   }
@@ -799,9 +799,9 @@ function handle_ruleset_control(packet)
       client_rules_flag[CRF_MARINE_BASES] = true;
       client_rules_flag[CRF_MARINE_RANGED] = true;
       client_rules_flag[CRF_BSHIP_BOMBARD] = true;
-      client_rules_flag[CRF_RECYCLING_DISCOUNT] = true;      
-      client_rules_flag[CRF_COLOSSUS_DISCOUNT] = true;      
-      client_rules_flag[CRF_SPECIAL_UNIT_ATTACKS] = true;      
+      client_rules_flag[CRF_RECYCLING_DISCOUNT] = true;
+      client_rules_flag[CRF_COLOSSUS_DISCOUNT] = true;
+      client_rules_flag[CRF_SPECIAL_UNIT_ATTACKS] = true;
 
       case "MP2 Brava":
       // flags for brava that don't override/contradict caravel
@@ -851,7 +851,7 @@ function handle_ruleset_control(packet)
       if (ename == "Sea Bridge") delete window["EXTRA_SEABRIDGE"];
     }
     else if (typeof EXTRA_FORT !== 'undefined') { //makes sure it's defined first
-      if (ename == "Fort") delete window["EXTRA_FORT"]; ///// 
+      if (ename == "Fort") delete window["EXTRA_FORT"]; /////
     } else if (typeof EXTRA_NAVALBASE !== 'undefined') {
         if (ename =="Naval Base") delete window["EXTRA_NAVALBASE"]
     } else if (typeof EXTRA_CASTLE !== 'undefined') {
@@ -868,7 +868,7 @@ function handle_ruleset_control(packet)
   // Granularity. From MP2_C onward, some units may have non-integer attack scores.
   // Put these into the client stored data for unit_types so that warcalc and helptext
   // will show perfect info:
-  
+
   /* TODO: implement rest.
    * Some ruleset packets don't have handlers *yet*. Remember to clean up
    * when they are implemented:
@@ -896,7 +896,7 @@ function handle_ruleset_control(packet)
    */
 }
 /**************************************************************************
-  Apply internal ruleset effects used for non-integer granular combat 
+  Apply internal ruleset effects used for non-integer granular combat
   scores. Assures accuracy for: warcalc, manual helptext, city prod list,
   etc.
 **************************************************************************/
@@ -1077,8 +1077,8 @@ function handle_unit_info(packet)
 {
   handle_unit_packet_common(packet);
   /* Update active tabs affected by this info */
-  var active_tab = $("#tabs").tabs("option", "active"); 
-  if (active_tab == TAB_EMPIRE) {  
+  var active_tab = $("#tabs").tabs("option", "active");
+  if (active_tab == TAB_EMPIRE) {
     empire_screen_updater.update();  // TEST:is this the right way to update empire screen?
   }
 }
@@ -1088,8 +1088,8 @@ function handle_unit_short_info(packet)
 {
   handle_unit_packet_common(packet);
   /* Update active tabs affected by this info */
-  var active_tab = $("#tabs").tabs("option", "active"); 
-  if (active_tab == TAB_EMPIRE) {  
+  var active_tab = $("#tabs").tabs("option", "active");
+  if (active_tab == TAB_EMPIRE) {
     empire_screen_updater.update();  // TEST:is this the right way to update empire screen?
   }
 }
@@ -1195,12 +1195,12 @@ function handle_unit_combat_info(packet)
       var player_is_combatant = (player_nation==nations[defender_nation]['adjective'] || player_nation==nations[attacker_nation]['adjective']);
       var combatant_visible = (is_unit_visible(attacker) || is_unit_visible(defender));
 
-      // When an attacker loses, play sound for defender if: a combatant is visible OR the player was involved in the battle. 
+      // When an attacker loses, play sound for defender if: a combatant is visible OR the player was involved in the battle.
       if (attacker_hp == 0 && (combatant_visible || player_is_combatant) )  {
         var win_type = unit_type(defender)['name'];
         var swords = (units_pregunpowder.indexOf(win_type) >= 0);
         if (combatant_visible) explosion_anim_map[attacker['tile']] = 25 - swords*1;
-        anim_swords_instead[attacker['tile']] = swords; 
+        anim_swords_instead[attacker['tile']] = swords;
 
         if (!combat_sound_special_case(attacker,attacker_hp,defender) ) // this function lets us program special cases sounds
           play_combat_sound(defender); //attacker lost, player defender combat sound
@@ -1210,17 +1210,17 @@ function handle_unit_combat_info(packet)
         var win_type = unit_type(attacker)['name'];
         var swords = (units_pregunpowder.indexOf(win_type) >= 0);
         if (combatant_visible) explosion_anim_map[defender['tile']] = 25 - swords*1;
-        anim_swords_instead[defender['tile']] = swords; 
+        anim_swords_instead[defender['tile']] = swords;
 
         if (!combat_sound_special_case(attacker,attacker_hp,defender) ) // this function lets us program special cases sounds
           play_combat_sound(attacker); //defender lost, player attacker combat sound
       }
       // When both units survive due to combat rounds/bombardment/etc.
-      if (defender_hp > 0 && attacker_hp > 0 && (combatant_visible || player_is_combatant) ) 
+      if (defender_hp > 0 && attacker_hp > 0 && (combatant_visible || player_is_combatant) )
       {
-        play_combat_sound(attacker); 
-        play_combat_sound(defender); 
-        
+        play_combat_sound(attacker);
+        play_combat_sound(defender);
+
         //update_map_canvas_full();
 /*
         // Construct the names of the defender unit: e.g., "Your Cannon", "French Cavalry", etc.
@@ -1228,24 +1228,24 @@ function handle_unit_combat_info(packet)
         if (nations[defender_nation]['adjective']==player_nation) defend_unit = "your";
         defend_unit = defend_unit + " " + unit_types[defender['type']]['name'];
         // Construct name of attacker unit:
-        var attack_unit = "the " + nations[attacker_nation]['adjective']; 
+        var attack_unit = "the " + nations[attacker_nation]['adjective'];
         if (nations[attacker_nation]['adjective']==player_nation) attack_unit = "your";
         attack_unit = attack_unit + " " + unit_types[attacker['type']]['name'];
-        
+
         // It was not sending a message after battle, so inject one here:
         var special_message = "A valiant battle with no winner: <l tgt=\"tile\" x=\""+tile_x+"\" y=\""+tile_y+"\">"+attack_unit+"</l> survived with "+attacker_hp+"hp while reducing "
-                            + defend_unit+" to "+defender_hp+"hp.";  
-        
-        // might need to replace true with "true" since it's string inside a packet:                    
+                            + defend_unit+" to "+defender_hp+"hp.";
+
+        // might need to replace true with "true" since it's string inside a packet:
         if (packet['make_att_veteran']==true && attack_unit.substring(0,4)=="your") {
           special_message += " From the battle experience, "+attack_unit+" gained a veteran level!"
         }
         else if (packet['make_def_veteran']==true && defend_unit.substring(0,4)=="your") {
           special_message += " From the battle experience, "+defend_unit+" gained a veteran level!"
-        } 
-        
-        // TO DO: special message is clickable like the others, taking you to the map location it happened.                    
-        
+        }
+
+        // TO DO: special message is clickable like the others, taking you to the map location it happened.
+
         // Everything below is a hack for the fact we aren't correctly intercepting and processing packets for battle results
         // sent by the server, when those battles involved combat_rounds and did not result in a unit dying:
         // --------------------------------------------------------------------------------------------------------------------
@@ -1255,31 +1255,31 @@ function handle_unit_combat_info(packet)
           item.className = "e_unit_win_att";
           item.innerHTML = "<span class='chatbox_text_tileinfo' onclick='center_tile_id("+attacker['tile']+");'>"+special_message+"</span>";
 
-          scrollDiv.appendChild(item); 
+          scrollDiv.appendChild(item);
           chatbox_scroll_to_bottom(true);
 */
           // New packet style coming back for a no-victory battle wasn't getting interpreted and redrawn
           // We will hard-code in here the new unit infos so redraw will work:
-/*          
+/*
           units[packet['attacker_unit_id']]['hp'] = attacker_hp;
           units[packet['defender_unit_id']]['hp'] = defender_hp;
 
           // force update veteran levels also
           if (packet['make_att_veteran']==true) units[packet['attacker_unit_id']]['veteran']++;
           if (packet['make_def_veteran']==true) units[packet['defender_unit_id']]['veteran']++;
-         
+
           //When neither unit wins, tired moves will almost certainly result in 0 movesleft, but we don't have
           // movesleft info until a packet 63 arrives with this info, so it's safer to show the user for now
           // what is 99% likely true, that the unit has 0 moves left, instead of 100% certainly false, that it has full movesleft:
           units[packet['attacker_unit_id']]['movesleft'] = 0;
           units[packet['defender_unit_id']]['movesleft'] = 0;  //packet 63 will reset these when it finally comes, likely to 0.
-*/          
-          // TO DO: send harmless action/info refresh on the unit such as a shift-J or unit info inquiry etc., using 
-          // var packet_unit_do_action = 84 (or other?) ...  to provoke the server to come back with a packet 63, in order 
+*/
+          // TO DO: send harmless action/info refresh on the unit such as a shift-J or unit info inquiry etc., using
+          // var packet_unit_do_action = 84 (or other?) ...  to provoke the server to come back with a packet 63, in order
           // to get the proper move points that are remaining for the player's unit... this will make all the hacky junk above superfluous.
-/*           
+/*
           // Forced redraw:
-          update_tile_unit(units[packet['attacker_unit_id']]);   
+          update_tile_unit(units[packet['attacker_unit_id']]);
           update_tile_unit(units[packet['defender_unit_id']]);
           auto_center_on_focus_unit();
           update_active_units_dialog();
@@ -1404,7 +1404,7 @@ function handle_unit_actions(packet)
 function handle_diplomacy_init_meeting(packet)
 {
   // for hotseat games, only activate diplomacy if the player is playing.
-  if (is_hotseat() && packet['initiated_from'] != client.conn.playing['playerno']) return;   
+  if (is_hotseat() && packet['initiated_from'] != client.conn.playing['playerno']) return;
 
   diplomacy_clause_map[packet['counterpart']] = [];
   show_diplomacy_dialog(packet['counterpart']);
@@ -1459,7 +1459,7 @@ function handle_page_msg(packet)
 
   // If it's Wonders of the World Report we are responsible for adding Small Wonders client-side
   if (packet.headline == "Wonders of the World") {
-    page_msg['message'] += handle_wonders_report(); 
+    page_msg['message'] += handle_wonders_report();
 
     if (packet['parts']==0) { // 0==no Great Wonders: must show a report dialog because no further parts arriving
       show_dialog_message(page_msg['headline'], page_msg['message']);
@@ -1477,13 +1477,13 @@ function handle_wonders_report()
   // initialize wonder report table
   var appended_message = "<div style='overflow:hidden;'><table><tr><th style='text-align:left;'><u>Small Wonders</u></th><th>#</th></tr>" ;
 
-  // counter for how many wonders we find out there in the world: 
+  // counter for how many wonders we find out there in the world:
   var wonders = new Array(improvements.length);
-  
+
   for (var w=0; w < Object.keys(improvements).length; w++)  {        // check all wonders
     wonders[w] = 0;
     for (var p=0; p < Object.keys(players).length; p++)              // look at all players
-    { 
+    {
       if (players[p].wonders[w] != 0)                 // player has wonder
         wonders[w]++;                                 // increment the count
     }
@@ -1492,7 +1492,7 @@ function handle_wonders_report()
       if (!client_is_observer() && player_has_wonder(client.conn.playing.playerno,w)) {
         color_marker = "<span style='color: rgb(128,192,255); text-shadow: 1px 1px #000'>";
       }
-      appended_message += "<tr style='cursor:default' title='"+html_safe(improvements[w].helptext)+"'>" 
+      appended_message += "<tr style='cursor:default' title='"+html_safe(improvements[w].helptext)+"'>"
         + "<td>" + color_marker + improvements[w].name+"</span></td><td><b>"+wonders[w] + "</b></td></tr>";
     }
   }
@@ -1621,12 +1621,12 @@ function handle_ruleset_unit(packet)
     }
   }
 
-  // Placeholder solution for units whose base combat strength is 
+  // Placeholder solution for units whose base combat strength is
   // non-integer and achievea  non-integer base score via a globally
   // applied bonus/penalty in units.ruleset.
   if (client_rules_flag[CRF_MP2_C])
     handle_non_integer_combat_scores(packet['id']);
-  
+
 }
 
 /************************************************************************//**
@@ -1640,7 +1640,7 @@ function handle_web_ruleset_unit_addition(packet)
   packet['utype_actions'] = new BitVector(packet['utype_actions']);
 
   unit_types[packet['id']] = $.extend(unit_types[packet['id']], packet);
-  
+
   create_unit_offset_arrays();
 }
 
@@ -1943,7 +1943,7 @@ function handle_server_setting_str(packet)
 }
 
 /**************************************************************************
-  Makes a game UID that is browser persistent, so user data specific 
+  Makes a game UID that is browser persistent, so user data specific
   to a game can be remembered on client.
 **************************************************************************/
 function handle_game_uid()
@@ -1952,16 +1952,16 @@ function handle_game_uid()
     * to go into chalkboard mode. That's bad because we might want to start
     * using the UID for saving other game-specific info on the client side.
     * Ideally we would not create a Game_UID on the client side but rather,
-    * pull it from server_settings or game_info. Or alternatively, find some 
-    * unique point/event/trigger during game load or game start that we know 
+    * pull it from server_settings or game_info. Or alternatively, find some
+    * unique point/event/trigger during game load or game start that we know
     * only happens once and happens AFTER we have received a packet with the
     * server_settings loaded, since those are needed to create the Game_UID. */
   if (! (server_settings && Object.keys(server_settings).length > 0) ) return;
-  if (is_longturn() 
+  if (is_longturn()
       && server_settings['metamessage']
       && server_settings['metamessage']['val']) {
-        
-        Game_UID = server_settings['metamessage']['val']; 
+
+        Game_UID = server_settings['metamessage']['val'];
   }
   else {
     Game_UID = server_settings['xsize']['val'] * server_settings['ysize']['val']
@@ -1969,7 +1969,7 @@ function handle_game_uid()
     if (client.conn.playing) {
       Game_UID += client.conn.playing['name'] + client.conn.playing['nation']
       + client.conn.playing['playerno'];
-    }          
+    }
   }
   Game_UID = getHash(Game_UID.toString()); // get UID
 
@@ -2036,7 +2036,7 @@ function handle_ruleset_extra(packet)
   if (typeof EXTRA_FORT !== 'undefined') { //makes sure it's defined first
      //some rulesets don't have this extra so this checks if it's defined first
     if (packet['name'] == "Fort") window["EXTRA_FORT"] = packet['id']; /////
-  } 
+  }
   /*
   if (typeof EXTRA_NAVALBASE !== 'undefined') { //makes sure it's defined first
     if (packet['name'] == "Naval Base") window["EXTRA_NAVALBASE"] = packet['id']; /////
@@ -2046,6 +2046,7 @@ function handle_ruleset_extra(packet)
   if (packet['name'] == "Naval Base") window["EXTRA_NAVALBASE"] = packet['id']; /////
   if (packet['name'] == "Railroad") window["EXTRA_RAIL"] = packet['id'];
   if (packet['name'] == "Oil Well") window["EXTRA_OIL_WELL"] = packet['id'];
+  if (packet['name'] == "?extra:Mine") window["EXTRA_MINE"] = packet['id'];
   if (packet['name'] == "Minor Tribe Village") window["EXTRA_HUT"] = packet['id'];
   if (packet['name'] == "Castle") window["EXTRA_CASTLE"] = packet['id'];
   if (packet['name'] == "Bunker") window["EXTRA_BUNKER"] = packet['id'];
@@ -2218,7 +2219,7 @@ function handle_team_name_info(packet)
 
 /************************************************************************//**
   Returns true if the sound of an event in the chat_log history should not
-  be played because the client is in a cooldown after launch, and not 
+  be played because the client is in a cooldown after launch, and not
   wanting to hear repeated events from long past turns (e.g., chat messages,
   sold buildings, etc.)
 ****************************************************************************/

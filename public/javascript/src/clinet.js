@@ -25,7 +25,8 @@ var syncTimerId = -1;
 var clinet_last_send = 0;
 var debug_client_speed_list = [];
 
-var freeciv_version = "+Freeciv.Web.Devel-3.1";
+//var freeciv_version = "+Freeciv.Web.Devel-3.1";
+var freeciv_version = "+Freeciv.Web.Devel-3.3";
 
 var transport = null;
 var civserverport = null;
