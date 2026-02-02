@@ -2638,6 +2638,246 @@ function do_map_click(ptile, qtype, first_time_called)
 {
   var punit;
   var packet;
+  var pcity;
+  if (ptile == null || client_is_observer()) return;
+
+  if (active_city != null) {
+    do_city_map_click(ptile);
+    return;
+  }
+
+  if (current_focus.length > 0 && current_focus[0]['tile'] == ptile['index']) {
+    /* clicked on unit at the same tile, then deactivate goto and show context menu. */
+    if (goto_active && !is_touch_device()) {
+      deactivate_goto(false);
+    }
+
+    $("#mapcanvas").contextMenu();
+
+    return;
+  }
+  var sunits = tile_units(ptile);
+  pcity = tile_city(ptile);
+
+  if (goto_active) {
+    if (current_focus.length > 0) {
+      // send goto order for all units in focus.
+      for (var s = 0; s < current_focus.length; s++) {
+        punit = current_focus[s];
+        /* Get the path the server sent using PACKET_WEB_GOTO_PATH. */
+        var goto_path = goto_request_map[punit['id'] + "," + ptile['x'] + "," + ptile['y']];
+        if (goto_path == null) {
+          continue;
+        }
+
+        /* The tile the unit currently is standing on. */
+        var old_tile = index_to_tile(punit['tile']);
+
+        /* Create an order to move along the path. */
+        packet = {
+          "pid"      : packet_unit_orders,
+          "unit_id"  : punit['id'],
+          "src_tile" : old_tile['index'],
+          "length"   : goto_path['length'],
+          "repeat"   : false,
+          "vigilant" : false,
+
+          /* Each individual order is added later. */
+
+          "dest_tile": ptile['index']
+        };
+
+        var order = {
+          "order"      : ORDER_LAST,
+          "activity"   : ACTIVITY_LAST,
+          "target"     : 0,
+          "sub_target" : 0,
+          "action"     : ACTION_COUNT,
+          "dir"        : -1
+        };
+
+        /* Add each individual order. */
+        packet['orders'] = [];
+        for (var i = 0; i < goto_path['length']; i++) {
+          /* TODO: Have the server send the full orders in stead of just the
+           * dir part. Use that data in stead. */
+
+          if (goto_path['dir'][i] == -1) {
+            /* Assume that this means refuel. */
+            order['order'] = ORDER_FULL_MP;
+          } else if (i + 1 != goto_path['length']) {
+            /* Don't try to do an action in the middle of the path. */
+            order['order'] = ORDER_MOVE;
+          } else {
+            /* It is OK to end the path in an action. */
+            order['order'] = ORDER_ACTION_MOVE;
+          }
+
+          order['dir'] = goto_path['dir'][i];
+          order['activity'] = ACTIVITY_LAST;
+          order['target'] = 0;
+          order['sub_target'] = 0;
+          order['action'] = ACTION_COUNT;
+
+          packet['orders'][i] = Object.assign({}, order);
+        }
+
+        if (goto_last_order != ORDER_LAST) {
+          /* The final order is specified. */
+          var pos;
+
+          /* Should the final order be performed from the final tile or
+           * from the tile before it? In some cases both are legal. */
+          if (!order_wants_direction(goto_last_order, goto_last_action,
+                                     ptile)) {
+            /* Append the final order. */
+            pos = packet['length'];
+
+            /* Increase orders length */
+            packet['length'] = packet['length'] + 1;
+
+            /* Initialize the order to "empty" values. */
+            order['order'] = ORDER_LAST;
+            order['dir'] = -1;
+            order['activity'] = ACTIVITY_LAST;
+            order['target'] = 0;
+            order['sub_target'] = 0;
+            order['action'] = ACTION_COUNT;
+
+          } else {
+            /* Replace the existing last order with the final order */
+            pos = packet['length'] - 1;
+          }
+
+          /* Set the final order. */
+          order['order'] = goto_last_order;
+
+          /* Perform the final action. */
+          order['action'] = goto_last_action;
+          order['target'] = ptile['index'];
+
+          packet['orders'][pos] = Object.assign({}, order);
+        }
+
+        /* The last order has now been used. Clear it. */
+        goto_last_order = ORDER_LAST;
+        goto_last_action = ACTION_COUNT;
+
+        if (punit['id'] != goto_path['unit_id']) {
+          /* Shouldn't happen. Maybe an old path wasn't cleared out. */
+          console.log("Error: Tried to order unit " + punit['id']
+                      + " to move along a path made for unit "
+                      + goto_path['unit_id']);
+          return;
+        }
+        /* Send the order to move using the orders system. */
+        send_request(JSON.stringify(packet));
+        if (punit['movesleft'] > 0) {
+          unit_move_sound_play(punit);
+        } else if (!has_movesleft_warning_been_shown) {
+          has_movesleft_warning_been_shown = true;
+          var ptype = unit_type(punit);
+          message_log.update({
+            event: E_BAD_COMMAND,
+            message: ptype['name'] + " has no moves left. Press turn done for the next turn."
+          });
+        }
+
+      }
+      clear_goto_tiles();
+
+    } else if (is_touch_device()) {
+      /* this is to handle the case where a mobile touch device user chooses
+      GOTO from the context menu or clicks the goto icon. Then the goto path
+      has to be requested first, and then do_map_click will be called again
+      to issue the unit order based on the goto path. */
+      if (current_focus.length > 0) {
+        request_goto_path(current_focus[0]['id'], ptile['x'], ptile['y']);
+        if (first_time_called) {
+          setTimeout(function(){
+            do_map_click(ptile, qtype, false);
+          }, 250);
+        }
+        return;
+      }
+    }
+
+    deactivate_goto(true);
+    update_unit_focus();
+
+  } else if (paradrop_active && current_focus.length > 0) {
+    punit = current_focus[0];
+    do_unit_paradrop_to(punit, ptile);
+    paradrop_active = false;
+
+  } else if (airlift_active && current_focus.length > 0) {
+    punit = current_focus[0];
+    pcity = tile_city(ptile);
+    if (pcity != null) {
+      request_unit_do_action(ACTION_AIRLIFT, punit['id'], pcity['id']);
+    }
+    airlift_active = false;
+
+  } else if (action_tgt_sel_active && current_focus.length > 0) {
+    request_unit_act_sel_vs(ptile);
+    action_tgt_sel_active = false;
+  } else {
+    if (pcity != null) {
+      if (pcity['owner'] == client.conn.playing.playerno) {
+        if (sunits != null && sunits.length > 0
+            && sunits[0]['activity'] == ACTIVITY_IDLE) {
+          set_unit_focus_and_redraw(sunits[0]);
+
+          $("#mapcanvas").contextMenu();
+
+        } else if (!goto_active) {
+          show_city_dialog(pcity);
+	    }
+      }
+      return;
+    }
+
+    if (sunits != null && sunits.length == 0) {
+      /* Clicked on a tile with no units. */
+      set_unit_focus_and_redraw(null);
+
+    } else if (sunits != null && sunits.length > 0 ) {
+      if (sunits[0]['owner'] == client.conn.playing.playerno) {
+        if (sunits.length == 1) {
+          /* A single unit has been clicked with the mouse. */
+          var unit = sunits[0];
+          set_unit_focus_and_activate(unit);
+        } else {
+          /* more than one unit is on the selected tile. */
+          set_unit_focus_and_redraw(sunits[0]);
+          update_active_units_dialog();
+        }
+
+        if (is_touch_device()) {
+          $("#mapcanvas").contextMenu();
+
+	    }
+      } else if (pcity == null) {
+        // clicked on a tile with units owned by other players.
+        current_focus = sunits;
+        $("#game_unit_orders_default").hide();
+        update_active_units_dialog();
+      }
+    }
+  }
+
+  paradrop_active = false;
+  airlift_active = false;
+  action_tgt_sel_active = false;
+}
+
+/**************************************************************************
+  Handles everything when the user clicked a tile
+**************************************************************************/
+function do_map_click_OLD(ptile, qtype, first_time_called)
+{
+  var punit;
+  var packet;
   var pcity = tile_city(ptile);
   var player_has_own_unit_present = false;
 
@@ -2907,6 +3147,7 @@ function do_map_click(ptile, qtype, first_time_called)
         var order = {
           "order"      : ORDER_LAST,
           "activity"   : ACTIVITY_LAST,
+          "target"     : 0,
           "sub_target" : 0,
           "action"     : ACTION_COUNT,
           "dir"        : -1
@@ -2931,6 +3172,7 @@ function do_map_click(ptile, qtype, first_time_called)
 
           order['dir'] = goto_path['dir'][i];
           order['activity'] = ACTIVITY_LAST;
+          order['target'] = 0;
           order['sub_target'] = 0;
           order['action'] = ACTION_COUNT;
 
@@ -2955,6 +3197,7 @@ function do_map_click(ptile, qtype, first_time_called)
             order['order'] = ORDER_LAST;
             order['dir'] = -1;
             order['activity'] = ACTIVITY_LAST;
+            order['target'] = 0;
             order['sub_target'] = 0;
             order['action'] = ACTION_COUNT;
           } else {
@@ -2967,6 +3210,7 @@ function do_map_click(ptile, qtype, first_time_called)
 
           /* Perform the final action. */
           order['action'] = goto_last_action;
+          order['target'] = ptile['index'];
 
           packet['orders'][pos] = Object.assign({}, order);
         }
@@ -6418,7 +6662,7 @@ function request_goto_path(unit_id, dst_x, dst_y)
   if (goto_request_map[unit_id + "," + dst_x + "," + dst_y] == null) {
     goto_request_map[unit_id + "," + dst_x + "," + dst_y] = true;
 
-    var packet = {"pid" : packet_goto_path_req, "unit_id" : unit_id,
+    var packet = {"pid" : packet_web_goto_path_req, "unit_id" : unit_id,
                   "goal" : map_pos_to_tile(dst_x, dst_y)['index']};
     send_request(JSON.stringify(packet));
     current_goto_turns = null;

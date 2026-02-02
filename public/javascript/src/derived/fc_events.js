@@ -189,14 +189,13 @@ var E_UNIT_ACTION_ACTOR_SUCCESS = 131;
 var E_UNIT_ACTION_ACTOR_FAILURE = 132;
 var E_UNIT_ACTION_TARGET_OTHER = 133;
 var E_UNIT_ACTION_TARGET_HOSTILE = 134;
-var E_CHAT_MSG_PUBLIC = 135;
-var E_CHAT_MSG_PRIVATE_SENT = 136;
-var E_CHAT_MSG_PRIVATE_RCVD = 137;
-var E_CHAT_MSG_ALLY = 138;
-var E_CHAT_PRIVATE = 139;
-var E_CHAT_ALLIES = 140;
-var E_CHAT_OBSERVER = 141;
-var E_UNDEFINED = 142;
+var E_INFRAPOINTS = 135;
+var E_HUT_MAP = 136;
+var E_TREATY_SHARED_TILES = 137;
+var E_CHAT_PRIVATE = 138;
+var E_CHAT_ALLIES = 139;
+var E_CHAT_OBSERVER = 140;
+var E_UNDEFINED = 141;
 
 var fc_e_events = [
   ["e_city_cantbuild", E_S_CITY, "Building Unavailable Item"],
@@ -334,10 +333,9 @@ var fc_e_events = [
   ["e_unit_action_actor_failure", E_S_UNIT, "Your unit failed"],
   ["e_unit_action_target_other", E_S_UNIT, "Unit did"],
   ["e_unit_action_target_hostile", E_S_UNIT, "Unit did to you"],
-  ["e_chat_msg_public", E_S_XYZZY, "Public chat messages"],
-  ["e_chat_msg_private_sent", E_S_XYZZY, "Private chat messages sent"],
-  ["e_chat_msg_private_rcvd", E_S_XYZZY, "Private chat messages rcvd"],
-  ["e_chat_msg_ally", E_S_XYZZY, "Ally chat messages"],
+  ["e_infrapoints", E_S_NATION, "Infrapoints"],
+  ["e_hut_map", E_S_HUT, "Map found from a hut"],
+  ["e_treaty_shared_tiles", E_S_TREATY, "Tiles shared"],
   ["e_chat_private", E_S_CHAT, "Private messages"],
   ["e_chat_allies", E_S_CHAT, "Allies messages"],
   ["e_chat_observer", E_S_CHAT, "Observers messages"],
