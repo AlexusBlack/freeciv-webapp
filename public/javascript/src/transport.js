@@ -183,49 +183,49 @@ class VirtualSocketTransport {
     _processReceivedData() {
         // Process length-prefixed packets from binary buffer
         while (this.receiveBuffer.length >= 2) {
-            if(this.receiveBuffer.at(-1) != 0) {
-                // add receiveBuffer to receiveBufferAcc
-                var combined = new Uint8Array(this.receiveBufferAcc.length + this.receiveBuffer.length);
-                combined.set(this.receiveBufferAcc);
-                combined.set(this.receiveBuffer, this.receiveBufferAcc.length);
-                this.receiveBufferAcc = combined;
-                this.receiveBuffer = new Uint8Array(0);
-                continue;
-            }
-            // Append receiveBuffer to receiveBufferAcc
-            var combined = new Uint8Array(this.receiveBufferAcc.length + this.receiveBuffer.length);
-            combined.set(this.receiveBufferAcc);
-            combined.set(this.receiveBuffer, this.receiveBufferAcc.length);
-            this.receiveBufferAcc = combined;
-            this.receiveBuffer = new Uint8Array(0);
-
-            // // Read 2-byte length (big-endian)
-            // var packetLen = (this.receiveBuffer[0] << 8) | this.receiveBuffer[1];
-
-            // // Sanity check
-            // if (packetLen < 3 || packetLen > 65536) {
-            //     console.error('Invalid packet length:', packetLen);
+            // if(this.receiveBuffer.at(-1) != 0) {
+            //     // add receiveBuffer to receiveBufferAcc
+            //     var combined = new Uint8Array(this.receiveBufferAcc.length + this.receiveBuffer.length);
+            //     combined.set(this.receiveBufferAcc);
+            //     combined.set(this.receiveBuffer, this.receiveBufferAcc.length);
+            //     this.receiveBufferAcc = combined;
             //     this.receiveBuffer = new Uint8Array(0);
-            //     break;
+            //     continue;
             // }
+            // // Append receiveBuffer to receiveBufferAcc
+            // var combined = new Uint8Array(this.receiveBufferAcc.length + this.receiveBuffer.length);
+            // combined.set(this.receiveBufferAcc);
+            // combined.set(this.receiveBuffer, this.receiveBufferAcc.length);
+            // this.receiveBufferAcc = combined;
 
-            // // Check if we have the complete packet
-            // if (this.receiveBuffer.length < packetLen) {
-            //     // Wait for more data
-            //     break;
-            // }
+            // Read 2-byte length (big-endian)
+            var packetLen = (this.receiveBuffer[0] << 8) | this.receiveBuffer[1];
+
+            // Sanity check
+            if (packetLen < 3 || packetLen > 65536) {
+                console.error('Invalid packet length:', packetLen);
+                this.receiveBuffer = new Uint8Array(0);
+                break;
+            }
+
+            // Check if we have the complete packet
+            if (this.receiveBuffer.length < packetLen) {
+                // Wait for more data
+                break;
+            }
             // Extract JSON data (skip 2-byte header, exclude null terminator)
-            // var jsonData = this.receiveBuffer.slice(2, this.receiveBuffer.length - 1);
-            // var jsonStr = new TextDecoder().decode(jsonData);
+            var jsonData = this.receiveBuffer.slice(2, packetLen - 1);
+            var jsonStr = new TextDecoder().decode(jsonData);
 
-            // // Remove processed packet from buffer
-            // // this.receiveBuffer = this.receiveBuffer.slice(packetLen);
+            // Remove processed packet from buffer
+            this.receiveBuffer = this.receiveBuffer.slice(packetLen);
             // this.receiveBuffer = this.receiveBuffer.slice(this.receiveBuffer.length);
 
-            let receivedString = new TextDecoder().decode(this.receiveBufferAcc);
-            let packets = receivedString.split('\x00');
-            // filter out empty packets
-            packets = packets.filter(Boolean);
+            // let receivedString = new TextDecoder().decode(this.receiveBufferAcc);
+            // let packets = receivedString.split('\x00');
+            // // filter out empty packets
+            // packets = packets.filter(Boolean);
+            const packets = [jsonStr];
 
             packets.forEach(p => {
               // Parse and deliver the packet
