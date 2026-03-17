@@ -2652,7 +2652,7 @@ function do_map_click(ptile, qtype, first_time_called)
       deactivate_goto(false);
     }
 
-    $("#mapcanvas").contextMenu();
+    $("#canvas").contextMenu();
 
     return;
   }
@@ -2828,7 +2828,7 @@ function do_map_click(ptile, qtype, first_time_called)
             && sunits[0]['activity'] == ACTIVITY_IDLE) {
           set_unit_focus_and_redraw(sunits[0]);
 
-          $("#mapcanvas").contextMenu();
+          $("#canvas").contextMenu();
 
         } else if (!goto_active) {
           show_city_dialog(pcity);
@@ -2854,7 +2854,7 @@ function do_map_click(ptile, qtype, first_time_called)
         }
 
         if (is_touch_device()) {
-          $("#mapcanvas").contextMenu();
+          $("#canvas").contextMenu();
 
 	    }
       } else if (pcity == null) {
@@ -5317,6 +5317,17 @@ function key_unit_irrigate()
   var funits = get_units_in_focus();
   for (var i = 0; i < funits.length; i++) {
     var punit = funits[i];
+    /* EXTRA_NONE -> server decides */
+    request_new_unit_activity(punit, ACTIVITY_IRRIGATE, EXTRA_NONE);
+  }
+  setTimeout(update_unit_focus, 700);
+}
+
+function key_unit_irrigate_OLD()
+{
+  var funits = get_units_in_focus();
+  for (var i = 0; i < funits.length; i++) {
+    var punit = funits[i];
     if (tile_terrain(unit_tile(punit))['cultivate_time'] > 0) {
       request_new_unit_activity(punit, ACTIVITY_CULTIVATE, EXTRA_NONE);
     } else {
@@ -6088,6 +6099,21 @@ function key_unit_road()
   for (var i = 0; i < funits.length; i++) {
     var punit = funits[i];
     var ptile = index_to_tile(punit['tile']);
+    if (!tile_has_extra(ptile, EXTRA_ROAD)) {
+      request_new_unit_activity(punit, ACTIVITY_GEN_ROAD, extras['Road']['id']);
+    } else if (!tile_has_extra(ptile, EXTRA_RAIL)) {
+      request_new_unit_activity(punit, ACTIVITY_GEN_ROAD, extras['Railroad']['id']);
+    }
+  }
+  setTimeout(update_unit_focus, 700);
+}
+
+function key_unit_road_OLD()
+{
+  var funits = get_units_in_focus();
+  for (var i = 0; i < funits.length; i++) {
+    var punit = funits[i];
+    var ptile = index_to_tile(punit['tile']);
 
     if (unit_types[punit['type']]['name'] == "Well-Digger") {
       request_new_unit_activity(punit, ACTIVITY_GEN_ROAD, extras['River']['id']);
@@ -6840,7 +6866,7 @@ function popit_req(ptile)
     focus_unit_id = current_focus[0]['id'];
   }
 
-  var packet = {"pid" : packet_info_text_req, "visible_unit" : punit_id,
+  var packet = {"pid" : packet_web_info_text_req, "visible_unit" : punit_id,
                 "loc" : ptile['index'], "focus_unit": focus_unit_id};
   send_request(JSON.stringify(packet));
 

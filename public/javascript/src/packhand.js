@@ -491,6 +491,21 @@ function handle_city_info(packet)
 }
 
 /***************************************************************************
+  Generic handling of follow up packets of city_info.
+***************************************************************************/
+function city_info_follow_up(packet, pname)
+{
+  if (cities[packet['id']] == null) {
+    /* The city should have been sent before the additional info. */
+    console.log(pname + " for unknown city "
+                + packet['id']);
+    return;
+  }
+
+  $.extend(cities[packet['id']], packet);
+}
+
+/***************************************************************************
   This is a follow up packet to city_info packet.
 ***************************************************************************/
 function handle_city_nationalities(packet)

@@ -226,6 +226,180 @@ function init_tech_screen()
 **************************************************************************/
 function update_tech_tree()
 {
+  var hy = 24;
+  var hx = 48 + 160;
+
+  tech_canvas_ctx.clearRect(0, 0, 5824, 726);
+
+  for (var tech_id in techs) {
+    var ptech = techs[tech_id];
+    if (!(tech_id+'' in reqtree) || reqtree[tech_id+''] == null) {
+      continue;
+    }
+
+    var sx = Math.floor(reqtree[tech_id+'']['x'] * tech_xscale);  //scale in X direction.
+    var sy = reqtree[tech_id+'']['y'];
+    for (var i = 0; i < ptech['req'].length; i++) {
+      var rid = ptech['req'][i];
+      if (rid == 0 || reqtree[rid+''] == null) continue;
+
+      var dx = Math.floor(reqtree[rid+'']['x'] * tech_xscale);  //scale in X direction.
+      var dy = reqtree[rid+'']['y'];
+
+      // Alternating line colour sequence, each tech gets a different line colour to differentiate.
+      var sequence = 1+Math.round(dy/55)+Math.round(dx/45);      // Create a "seed" that bumps up as we span the canvas vertically and horizontally
+      sequence = sequence - (sequence-sequence%9);               // This creates a colour number from 0-8 out of our "seed"
+      if (reqtree[rid+'']['col'] !== undefined) sequence = reqtree[rid+'']['col']; // Allow reqtree designer to override random colour for some techs
+
+      // known tech connecting to known tech: use black line
+      if (tech_known(ptech['rule_name']) && tech_known(techs[rid]['rule_name'])) {
+        tech_canvas_ctx.strokeStyle = 'rgb(88, 88, 88)';
+        tech_canvas_ctx.lineWidth = 1;
+      }
+      else { // else differentiate line colours to make tracing them easier
+        if (sequence == 9) tech_canvas_ctx.strokeStyle =      'rgba(80, 80, 80, 0.95)';     // grey
+        else if (sequence == 8) tech_canvas_ctx.strokeStyle = 'rgba(55, 83, 104, 0.83)';       // egyptian blue
+        else if (sequence == 7) tech_canvas_ctx.strokeStyle = 'rgba(81, 146, 187, 0.8)';       // medium teal-blue
+        else if (sequence == 6) tech_canvas_ctx.strokeStyle = 'rgba(121, 127, 82, 0.88)';      // olive / ochre
+        else if (sequence == 5) tech_canvas_ctx.strokeStyle = 'rgba(138, 36, 78, 0.8)';        // wine
+        else if (sequence == 4) tech_canvas_ctx.strokeStyle = 'rgba(80, 161, 80, 0.8)';      // bright sky
+        else if (sequence == 3) tech_canvas_ctx.strokeStyle = 'rgba(60, 187, 146, 0.8)';       // bronze sea spray (strong green-cyan)
+        else if (sequence == 2) tech_canvas_ctx.strokeStyle = 'rgba(124, 108, 167, 0.95)';     // periwinkle
+        else if (sequence == 1) tech_canvas_ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';      // white
+        else tech_canvas_ctx.strokeStyle =                    'rgba(150, 91, 79, 0.85)';       // coral / salmon
+        tech_canvas_ctx.lineWidth = 3;
+      }
+
+      var node_offset = 3;
+      tech_canvas_ctx.beginPath();
+      tech_canvas_ctx.moveTo(sx, sy + hy);
+      tech_canvas_ctx.lineTo(dx + hx+(node_offset+1), dy + hy);
+      tech_canvas_ctx.stroke();
+
+      // draw a node (helps indicate which line-colour is the real required tech: because we see a coloured node for it )
+      var radius = 2;
+      tech_canvas_ctx.lineWidth = 4;
+      tech_canvas_ctx.beginPath();
+      tech_canvas_ctx.arc(dx + hx+radius+node_offset, dy + hy, radius, 0, 2 * Math.PI, false);
+      tech_canvas_ctx.stroke();
+    }
+
+  }
+
+  tech_canvas_ctx.lineWidth = 1;
+
+  for (var tech_id in techs) {
+    var ptech = techs[tech_id];
+    if (!(tech_id+'' in reqtree) || reqtree[tech_id+''] == null) {
+      console.log("tech not found");
+      continue;
+    }
+
+    var x = Math.floor(reqtree[tech_id+'']['x'] * tech_xscale)+2;  //scale in X direction.
+    var y = reqtree[tech_id+'']['y']+2;
+
+    /* KNOWN TECHNOLOGY */
+    if (player_invention_state(client.conn.playing, ptech['id']) == TECH_KNOWN) {
+
+      var tag = tileset_tech_graphic_tag(ptech);
+      tech_canvas_ctx.fillStyle = 'rgb(255, 255, 255)';
+      tech_canvas_ctx.fillRect(x-2, y-2, tech_item_width, tech_item_height);
+      tech_canvas_ctx.strokeStyle = 'rgb(225, 225, 225)';
+      tech_canvas_ctx.strokeRect(x-2, y-2, tech_item_width, tech_item_height);
+      mapview_put_tile(tech_canvas_ctx, tag, x+1, y);
+
+      tech_canvas_ctx.font = tech_canvas_text_font;
+      tech_canvas_ctx.fillStyle = "rgba(0, 0, 0, 1)";
+      tech_canvas_ctx.fillText(ptech['name'], x + 50, y + 15);
+
+      if (x > maxleft) maxleft = x;
+
+
+    /* TECH WITH KNOWN PREREQS. */
+    } else if (player_invention_state(client.conn.playing, ptech['id']) == TECH_PREREQS_KNOWN) {
+      var bgcolor = (is_tech_req_for_goal(ptech['id'], client.conn.playing['tech_goal'])) ? "rgb(131, 170, 101)" : "rgb(91, 130, 61)";
+      if (client.conn.playing['researching'] == ptech['id']) {
+        bgcolor = "rgb(161, 200, 131)";
+        tech_canvas_ctx.lineWidth=6;
+      }
+
+      var tag = tileset_tech_graphic_tag(ptech);
+      tech_canvas_ctx.lineWidth=4;
+      tech_canvas_ctx.fillStyle = bgcolor;
+      tech_canvas_ctx.fillRect(x-2, y-2, tech_item_width, tech_item_height);
+      tech_canvas_ctx.strokeStyle = 'rgb(255, 255, 255)';
+      tech_canvas_ctx.strokeRect(x-2, y-2, tech_item_width, tech_item_height);
+      tech_canvas_ctx.lineWidth=2;
+      mapview_put_tile(tech_canvas_ctx, tag, x+1, y);
+
+      if (client.conn.playing['researching'] == ptech['id']) {
+        tech_canvas_ctx.fillStyle = 'rgb(0, 0, 0)';
+        tech_canvas_ctx.font = "Bold " + tech_canvas_text_font;
+      } else {
+        tech_canvas_ctx.font = tech_canvas_text_font;
+        tech_canvas_ctx.fillStyle = 'rgb(255, 255, 255)';
+      }
+      tech_canvas_ctx.fillText(ptech['name'], x + 51, y + 16);
+
+    /* UNKNOWN TECHNOLOGY. */
+    } else if (player_invention_state(client.conn.playing, ptech['id']) == TECH_UNKNOWN) {
+      let bgcolor = (is_tech_req_for_goal(ptech['id'], client.conn.playing['tech_goal'])) ? "rgb(111, 141, 180)" : "rgb(61, 95, 130)";
+      if (client.conn.playing['tech_goal'] == ptech['id']) {
+        tech_canvas_ctx.lineWidth=6;
+      }
+
+      var tag = tileset_tech_graphic_tag(ptech);
+      tech_canvas_ctx.fillStyle =  bgcolor;
+      tech_canvas_ctx.fillRect(x-2, y-2, tech_item_width, tech_item_height);
+      tech_canvas_ctx.strokeStyle = 'rgb(255, 255, 255)';
+      tech_canvas_ctx.strokeRect(x-2, y-2, tech_item_width, tech_item_height);
+      tech_canvas_ctx.lineWidth=2;
+      mapview_put_tile(tech_canvas_ctx, tag, x+1, y);
+
+      if (client.conn.playing['tech_goal'] == ptech['id']) {
+        tech_canvas_ctx.fillStyle = 'rgb(0, 0, 0)';
+        tech_canvas_ctx.font = "Bold " + tech_canvas_text_font;
+      } else {
+        tech_canvas_ctx.fillStyle = 'rgb(255, 255, 255)';
+        tech_canvas_ctx.font = tech_canvas_text_font;
+      }
+      tech_canvas_ctx.fillText(ptech['name'], x + 51, y + 16);
+    }
+
+    var tech_things = 0;
+    var prunits = get_utypes_from_tech(tech_id);
+    for (var i = 0; i < prunits.length; i++) {
+      var ptype = prunits[i];
+
+      // Suppress nuclear units if server settings don't allow them:
+      if (utype_has_flag(ptype, UTYF_NUCLEAR)) {
+        if (!server_settings['nukes_minor']['val']) continue; // Nukes totally turned off in this game, skip them
+        if (!server_settings['nukes_major']['val']) {
+          if (ptype['bombard_rate']>0) continue;   // if major nukes are OFF, suppress illegal prod choice.
+          if (ptype['bombard_rate']<-1) continue;  // if major nukes are OFF, suppress illegal prod choice.
+        }
+      }
+
+      var sprite = sprites[tileset_unit_type_graphic_tag(ptype)];
+      if (sprite != null) {
+        tech_canvas_ctx.drawImage(sprite, x + 50 + ((tech_things++) * 30), y + 23, 28, 24);
+      }
+    }
+
+
+    var primprovements = get_improvements_from_tech(tech_id);
+    for (var i = 0; i < primprovements.length; i++) {
+      var pimpr = primprovements[i];
+      var sprite = sprites[tileset_building_graphic_tag(pimpr)];
+      if (sprite != null) {
+        tech_canvas_ctx.drawImage(sprite, x + 50 + ((tech_things++) * 30), y + 23, 28, 24);
+      }
+    }
+  }
+}
+
+function update_tech_tree_OLD()
+{
   if (freeze) return;
   var hy = 24;
   var hx = 48 + 160;
