@@ -15,7 +15,6 @@
  var packet_city_options_req = 41
  var packet_city_refresh = 42
  var packet_city_name_suggestion_req = 43
- var packet_city_manager = 139
  var packet_city_rally_point = 138
  var packet_worker_task = 241
  var packet_player_phase_done = 52
@@ -29,7 +28,7 @@
  var packet_player_tech_goal = 56
  var packet_unit_sscs_set = 71
  var packet_unit_orders = 73
- var packet_unit_autosettlers = 74
+ var packet_unit_server_side_agent_set = 74
  var packet_unit_action_query = 82
  var packet_unit_type_upgrade = 83
  var packet_unit_do_action = 84
@@ -48,6 +47,7 @@
  var packet_spaceship_launch = 135
  var packet_spaceship_place = 136
  var packet_single_want_hack_req = 160
+ var packet_ruleset_select = 171
  var packet_save_scenario = 181
  var packet_vote_submit = 189
  var packet_edit_mode = 190
@@ -72,6 +72,7 @@
  var packet_edit_player_vision = 217
  var packet_edit_game = 218
  var packet_edit_scenario_desc = 14
- var packet_goto_path_req = 287
- var packet_info_text_req = 289
- var packet_ongoing_longturn_nation_select_req = 291
+ var packet_web_cma_set = 257
+ var packet_web_cma_clear = 258
+ var packet_web_goto_path_req = 287
+ var packet_web_info_text_req = 289

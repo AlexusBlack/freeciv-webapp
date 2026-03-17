@@ -123,36 +123,36 @@ function update_game_status_panel() {
 
     if (income_needs_refresh) city_force_income_update();
 
-    var net_income = pplayer['expected_income'].toString();
-    var income_str = (net_income.slice(-2) == ".5") ? (net_income.substring(0, net_income.length - 2) + "</b>&#189<b>") : net_income;
+    var net_income = pplayer['expected_income']; //.toString();
+    // var income_str = (net_income.slice(-2) == ".5") ? (net_income.substring(0, net_income.length - 2) + "</b>&#189<b>") : net_income;
 
     if (pplayer['expected_income'] > 0) {
-      net_income = "+" + income_str;
-    } else net_income = income_str;
+      net_income = "+" + pplayer['expected_income'];//income_str;
+    }// else net_income = income_str;
 
     // PUT FLAG TO LEFT OF NATION NAME
     if (!is_small_screen()) {
       var pplayer = client.conn.playing;
       var pnation = nations[pplayer['nation']];
       var tag = pnation['graphic_str'];
-  
+
       var civ_flag = "";
       if (!pnation['customized']) {
         civ_flag += "<img class='lowered_gov' style='background-color:transparent;margin-top:-3px;margin-right:3px;' src='/images/flags/" + tag + "-web" + get_tileset_file_extention() + "' width='42'>";
         status_html += "<span>"+civ_flag+"</span>";
-      } 
+      }
     }
-    
+
     if (!is_small_screen()) status_html += "<span style='cursor:default;'><b>" + nations[pplayer['nation']]['adjective'] + "</b></span> &nbsp;";
-    
+
 /*************** Government type mini-icon that's clickable for revolution */
     if (!is_small_screen()) {
 
       status_html += "<span style='cursor:pointer;' onclick='javascript:show_revolution_dialog()'>";
-      
+
       var gov_name = governments[client.conn.playing['government']]['name'];
-      var gov_modifier = get_gov_modifier(client.conn.playing.playerno, "", true);     
-      
+      var gov_modifier = get_gov_modifier(client.conn.playing.playerno, "", true);
+
       if (gov_name == "Anarchy") status_html += "<img class='lowered_gov' src='/images/gov.anarchy.png' title='Anarchy'>";
       else if (gov_name == "Despotism") status_html += "<img class='lowered_gov' src='/images/gov.despotism.png' title='Despotism'>";
       else if (gov_name == "Monarchy") status_html += "<img class='lowered_gov' src='/images/gov.monarchy"+gov_modifier+".png' title='"+gov_modifier+" Monarchy'>";
@@ -173,28 +173,28 @@ function update_game_status_panel() {
     if (!is_small_screen()) status_html += "<b>" + city_size_sum(client.conn.playing.playerno) + "</b>  &nbsp;&nbsp;";
     if (!is_small_screen()) status_html += "<i style='color:#d8dff0' class='fa fa-clock-o' aria-hidden='true' title='Year (turn)'></i> <b>" + get_year_string() + "</b> &nbsp;&nbsp;</span>";
     status_html += "<i style='color:#89c06a' class='fa fa-money' aria-hidden='true' title='Treasury'></i> ";
-   
+
     var income_color = "<b";
     // colour for positive/zero/negative income
     if (pplayer['expected_income'] < 0) income_color += " class='negative_net_income' title='Deficit'";
-    else if (pplayer['expected_income'] > 0) income_color += income_calculated_by_client 
+    else if (pplayer['expected_income'] > 0) income_color += income_calculated_by_client
        ? " style='color:#89c06a' title='Income'" : " style='color:#a2b095' title='Income'" // slight hint whether accurate client calc or from server.
-    
-    status_html += "<b style='color:#ffde80; cursor:default;' title='Gold'>"+pplayer['gold'] 
+
+    status_html += "<b style='color:#ffde80; cursor:default;' title='Gold'>"+pplayer['gold']
     + "</b> "+income_color+" style='cursor:default;'>" + net_income + "</b>"+"  &nbsp;&nbsp;";
-    status_html += "<span style='cursor:pointer;' onclick='javascript:show_tax_rates_dialog();'><i style='color:#ebb445' class='fa fa-btc' aria-hidden='true' title='Tax rate'></i> <b style='color:#fff0d1'>" 
+    status_html += "<span style='cursor:pointer;' onclick='javascript:show_tax_rates_dialog();'><i style='color:#ebb445' class='fa fa-btc' aria-hidden='true' title='Tax rate'></i> <b style='color:#fff0d1'>"
     + tax + "</b><span style='color:#bcbcbc'>%</span> &nbsp;";
     status_html += "<i style='color:#b087c5;' class='fa fa-music' aria-hidden='true' title='Luxury rate'></i> <b style='color:#f5e8ff'>" + lux + "</b><span style='color:#bcbcbc'>%</span> &nbsp;";
     const sci_title = "Science:\n"+(techs[client.conn.playing['researching']]===undefined ? "" : techs[client.conn.playing['researching']]['name']) +"\n"
-                    + client.conn.playing['bulbs_researched'] + " / " + client.conn.playing['researching_cost'] +"\n" + bulb_output_text;             
+                    + client.conn.playing['bulbs_researched'] + " / " + client.conn.playing['researching_cost'] +"\n" + bulb_output_text;
     status_html += "<i style='color:#a8ccd7;'class='fa fa-flask' aria-hidden='true' title='"+sci_title+"'></i> <b style='color:#ebfaff'>" + sci + "</b><span style='color:#bcbcbc'>%</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> ";
-  
+
   } else if (server_settings != null && server_settings['metamessage'] != null) {    // Status message for gamemasters/admins/supercows:
     status_html += "Observing - Turn <b>" + game_info['turn'] + "</b> -";
     var status_message = "";
     if (server_settings['metamessage']['val'].indexOf('|') != -1) {
       // extract the game identifier string out of the longer metamessage
-      status_message = server_settings['metamessage']['val'].substr(0,server_settings['metamessage']['val'].indexOf('|')); 
+      status_message = server_settings['metamessage']['val'].substr(0,server_settings['metamessage']['val'].indexOf('|'));
     }
     status_html += status_message + " &nbsp; &nbsp; &nbsp; &nbsp; ";  // pad to prevent turn done button overwrite.
   }
@@ -272,10 +272,10 @@ function sum_width()
 {
   var sum=0;
   $("#tabs_menu").children().each( function(){
-    if ($(this).is(":visible") 
+    if ($(this).is(":visible")
         && $(this).attr('id') != "game_status_panel_top"
         && $(this).attr('id').startsWith("ixtjkiller")) {
-        
+
         sum += $(this).width();
     }
   });

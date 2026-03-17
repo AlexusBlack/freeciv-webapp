@@ -160,7 +160,7 @@ function setup_window_size ()
     $('#ui-id-12').parent().show();  // unhide messagebox title
     $(".ui-dialog-titlebar").css({"font-size":"70%", "margin-left":"-3px"});
     $("#game_status_panel_bottom").css("font-size", "0.8em");
-  } else {  // handle case where small window is resized to large again 
+  } else {  // handle case where small window is resized to large again
     $("#map_tab").children().html("<img style='float:left; margin-right:5px;' src='/images/map_tab_icon.png'> Map");
     $("#empire_tab").children().html("<img style='float:left; margin-right:5px;' src='/images/empire_tab_icon.png'> Empire");
     $("#civ_tab").children().html("<img style='float:left; margin-right:5px;' src='/images/gov_tab_icon.png'> Gov.");
@@ -272,7 +272,7 @@ function show_new_game_message()
       "Please join the <a href='https://discord.gg/BrpzgpgMAF' target='_new'>community Discord chat</a>. "+
       "This message window reports game events.\n Do not post spam or offsite advertisements." +
       "<u style='color:#fde'>Tap the yellow <b>minimize button</b> at the top to enter the game</u>. You can return here to view " +
-      "game messages by hitting the maximize button."; 
+      "game messages by hitting the maximize button.";
 
   } else if (client.conn.playing != null && !game_loaded) {
     var pplayer = client.conn.playing;
@@ -336,7 +336,7 @@ function show_endgame_dialog()
   for (var i = 0; i < endgame_player_info.length; i++) {
     var pplayer = players[endgame_player_info[i]['player_id']];
     var nation_adj = nations[pplayer['nation']]['adjective'];
-    message += (i+1) + ": The " + nation_adj + " ruler " + pplayer['name'] 
+    message += (i+1) + ": The " + nation_adj + " ruler " + pplayer['name']
       + " scored " + endgame_player_info[i]['score'] + " points" + "<br>";
   }
 
@@ -372,6 +372,60 @@ function show_endgame_dialog()
   setTimeout(submit_game_to_hall_of_fame, 1000);
 }
 
+/**************************************************************************
+Received tile info text.
+**************************************************************************/
+function handle_web_info_text_message(packet)
+{
+  var message = decodeURIComponent(packet['message']);
+  var lines = message.split('\n');
+
+  /* When a line starts with the key, the regex value is used to break it
+   * in four elements:
+   * - text before the player's name
+   * - player's name
+   * - text after the player's name and before the status insertion point
+   * - text after the status insertion point
+  **/
+  var matcher = {
+    'Terri': /^(Territory of )([^(]*)(\s+\([^,]*)(.*)/,
+    'City:': /^(City:[^|]*\|\s+)([^(]*)(\s+\([^,]*)(.*)/,
+    'Unit:': /^(Unit:[^|]*\|\s+)([^(]*)(\s+\([^,]*)(.*)/
+  };
+
+  for (var i = 0; i < lines.length; i++) {
+    var re = matcher[lines[i].substr(0, 5)];
+    if (re !== undefined) {
+      var pplayer = null;
+      var split_txt = lines[i].match(re);
+      if (split_txt != null && split_txt.length > 4) {
+        pplayer = player_by_full_username(split_txt[2]);
+      }
+      if (pplayer != null &&
+          (client.conn.playing == null || pplayer != client.conn.playing)) {
+        lines[i] = split_txt[1]
+                 + "<a href='#' onclick='nation_table_select_player("
+                 + pplayer['playerno']
+                 + ");' style='color: black;'>"
+                 + split_txt[2]
+                 + "</a>"
+                 + split_txt[3]
+                 + ", "
+                 + get_player_connection_status(pplayer)
+                 + split_txt[4];
+      }
+    }
+  }
+  message = lines.join("<br>\n");
+
+  if (info_text_req_tile != null && city_building_positions[info_text_req_tile['index']]) {
+    message += "<br>" + city_building_positions[info_text_req_tile['index']]['name'] + ".";
+  }
+
+  show_tile_info( message);
+
+}
+
 
 /**************************************************************************
  Updates message on the metaserver on gamestart.
@@ -379,7 +433,7 @@ function show_endgame_dialog()
 function update_metamessage_on_gamestart()
 {
   if (!observing && !metamessage_changed && client.conn.playing != null
-      && client.conn.playing['pid'] == players[0]['pid'] 
+      && client.conn.playing['pid'] == players[0]['pid']
       && $.getUrlVar('action') == "new") {
     var pplayer = client.conn.playing;
     var metasuggest = capitalize(username) + " ruler of the " + nations[pplayer['nation']]['adjective'] + ".";
@@ -387,7 +441,7 @@ function update_metamessage_on_gamestart()
     setInterval(update_metamessage_game_running_status, 200000);
   }
 
-  if ($.getUrlVar('action') == "new" || $.getUrlVar('action') == "earthload" 
+  if ($.getUrlVar('action') == "new" || $.getUrlVar('action') == "earthload"
       || $.getUrlVar('scenario') == "true") {
     $.post("/freeciv_time_played_stats?type=single2d").fail(function() {});
   }

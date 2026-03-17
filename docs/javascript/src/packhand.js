@@ -278,9 +278,9 @@ function handle_chat_msg(packet)
     case E_IMP_SOLD:
       if (!suppress_event_sound()) play_sound(soundset["e_imp_sold"]);
       break;
-    case E_CHAT_MSG_PRIVATE_RCVD:
-      if (!suppress_event_sound()) play_sound("iphone1.ogg");
-      break;
+    //case E_CHAT_MSG_PRIVATE_RCVD:
+    //  if (!suppress_event_sound()) play_sound("iphone1.ogg");
+    //  break;
     //case E_CHAT_MSG_PRIVATE_SENT:
     //  break;
   }
@@ -488,6 +488,37 @@ function handle_city_info(packet)
 
   /* Stop the processing here. Wait for the web_city_info_addition packet.
    * The processing of this packet will continue once it arrives. */
+}
+
+/***************************************************************************
+  Generic handling of follow up packets of city_info.
+***************************************************************************/
+function city_info_follow_up(packet, pname)
+{
+  if (cities[packet['id']] == null) {
+    /* The city should have been sent before the additional info. */
+    console.log(pname + " for unknown city "
+                + packet['id']);
+    return;
+  }
+
+  $.extend(cities[packet['id']], packet);
+}
+
+/***************************************************************************
+  This is a follow up packet to city_info packet.
+***************************************************************************/
+function handle_city_nationalities(packet)
+{
+  city_info_follow_up(packet, "packet_city_nationalities");
+}
+
+/***************************************************************************
+  This is a follow up packet to city_info packet.
+***************************************************************************/
+function handle_city_rally_point(packet)
+{
+  city_info_follow_up(packet, "packet_city_rally_point");
 }
 
 /***************************************************************************
@@ -1823,6 +1854,47 @@ function handle_ruleset_terrain_flag(packet)
   /* TODO: implement */
 }
 
+function handle_ruleset_impr_flag(packet)
+{
+  /* TODO: implement */
+}
+
+/************************************************************************//**
+  Packet handle_ruleset_ruleset handler.
+****************************************************************************/
+function handle_ruleset_counter(packet)
+{
+  /* TODO: implement */
+}
+
+/************************************************************************//**
+  Packet ruleset_multiplier handler.
+****************************************************************************/
+function handle_ruleset_multiplier(packet)
+{
+  /* TODO: Implement */
+}
+
+function handle_edit_startpos(packet)
+{
+  /* edit not supported. */
+}
+
+function handle_edit_startpos_full(packet)
+{
+  /* edit not supported. */
+}
+
+/**************************************************************************
+  Received goto path, likely because we requested one.
+**************************************************************************/
+function handle_web_goto_path(packet)
+{
+  if (goto_active) {
+    update_goto_path(packet);
+  }
+}
+
 /**************************************************************************
   Receive scenario information about the current game.
 
@@ -2147,6 +2219,11 @@ function handle_research_info(packet)
   bulbs_output_updater.update();
 }
 
+function handle_unknown_research(packet)
+{
+  delete research_data[packet['id']];
+}
+
 function handle_worker_task(packet)
 {
   /* TODO: Implement */
@@ -2215,6 +2292,31 @@ function handle_achievement_info(packet)
 function handle_team_name_info(packet)
 {
   /* TODO: implement */
+}
+
+function handle_city_update_counter(packet)
+{
+  /* TODO */
+}
+
+/***************************************************************************
+  This packet is related to the city, and sent at the same time
+  as city info. Current implementation is not a clean
+  "city_info follow up packet", though.
+***************************************************************************/
+function handle_city_update_counters(packet)
+{
+  // TODO: Implement
+}
+
+function handle_investigate_started(packet)
+{
+  // TODO: Implement
+}
+
+function handle_investigate_finished(packet)
+{
+  // TODO: Implement
 }
 
 /************************************************************************//**

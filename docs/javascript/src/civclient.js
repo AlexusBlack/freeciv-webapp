@@ -621,7 +621,7 @@ function surrender_game()
 **************************************************************************/
 function send_surrender_game()
 {
-  if (!client_is_observer() && ws != null && ws.readyState === 1) {
+  if (!client_is_observer() && transport && transport.isConnected()) {
     send_message("/surrender ");
   }
 }
@@ -650,7 +650,7 @@ function show_debug_info()
   console.log("simpleStorage version: " + simpleStorage.version);
   console.log("Touch device: " + is_touch_device());
   console.log("HTTP protocol: " + document.location.protocol);
-  if (ws != null && ws.url != null) console.log("WebSocket URL: " + ws.url);
+  if (ws != null && ws.url != null) console.log("WebSocket URL: " + transport.url);
 
   debug_active = true;
   /* Show average network latency PING (server to client, and back). */
