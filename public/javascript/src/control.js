@@ -121,6 +121,8 @@ var end_turn_info_message_shown = false;
  */
 var action_selection_in_progress_for = 0; /* before IDENTITY_NUMBER_ZERO */
 var is_more_user_input_needed = false;
+var info_text_req_tile = null;
+var last_info_tile = null;
 
 /****************************************************************************
 ...
@@ -6812,6 +6814,7 @@ function popit()
   var ptile = canvas_pos_to_tile(mouse_x, mouse_y);
 
   if (ptile == null) return;
+  last_info_tile = ptile;
 
   mclick_tile = ptile; // improve_tile_info_dialog() wants to know this
   setTimeout(popit_req(ptile),150);
@@ -6869,6 +6872,7 @@ function popit_req(ptile)
   var packet = {"pid" : packet_web_info_text_req, "visible_unit" : punit_id,
                 "loc" : ptile['index'], "focus_unit": focus_unit_id};
   send_request(JSON.stringify(packet));
+  info_text_req_tile = ptile;
 
   // IF middle-clicked a tile that: 1) has unit(s), 2) has GO TO orders; THEN: show the path(s)
   if (punit_id) { // units are on tile

@@ -418,11 +418,12 @@ function handle_web_info_text_message(packet)
   }
   message = lines.join("<br>\n");
 
-  if (info_text_req_tile != null && city_building_positions[info_text_req_tile['index']]) {
-    message += "<br>" + city_building_positions[info_text_req_tile['index']]['name'] + ".";
-  }
+  // FIXME: add this info back
+  // if (info_text_req_tile != null && city_building_positions[info_text_req_tile['index']]) {
+  //   message += "<br>" + city_building_positions[info_text_req_tile['index']]['name'] + ".";
+  // }
 
-  show_tile_info( message);
+  show_dialog_message("Tile Info", message);
 
 }
 
