@@ -1395,6 +1395,16 @@ function show_longturn_intro_dialog() {
 **************************************************************************/
 function validate_username_callback()
 {
+  username = $("#username_req").val().trim();
+  network_init();
+  if (!is_touch_device()) $("#pregame_text_input").focus();
+  $("#dialog").dialog('close');
+  $("#password_req").val("");
+  simpleStorage.set("password", "");
+
+
+  return; // not used for WASM singleplayer
+
   var check_username = $("#username_req").val();
   $.ajax({
    type: 'POST',

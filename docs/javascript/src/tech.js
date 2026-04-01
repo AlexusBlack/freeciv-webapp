@@ -30,7 +30,7 @@ var tech_canvas_text_font_alt = "18px Arial";   // smaller for !bold long names
 var is_tech_tree_init = false;
 var tech_dialog_active = false;
 
-var tech_xscale = 1.2;
+var tech_xscale = 2;
 var wikipedia_url = "http://freeciv.fandom.com/wiki/";
 
 /* Allow checking if mouse was in a tech box for a certain time,
@@ -152,7 +152,7 @@ function init_tech_screen()
   let dag_data = Object.values(techs).map(t => {
     return {
       id: t.id.toString(),
-      parentIds: t.req.filter(i => i != 0).map(i => i.toString())
+      parentIds: t.research_reqs.map(i => i.value.toString())
     };
   });
   const dag = d3.dagStratify()(dag_data);
@@ -239,8 +239,8 @@ function update_tech_tree()
 
     var sx = Math.floor(reqtree[tech_id+'']['x'] * tech_xscale);  //scale in X direction.
     var sy = reqtree[tech_id+'']['y'];
-    for (var i = 0; i < ptech['req'].length; i++) {
-      var rid = ptech['req'][i];
+    for (var i = 0; i < ptech['research_reqs'].length; i++) {
+      var rid = ptech['research_reqs'][i].value;
       if (rid == 0 || reqtree[rid+''] == null) continue;
 
       var dx = Math.floor(reqtree[rid+'']['x'] * tech_xscale);  //scale in X direction.

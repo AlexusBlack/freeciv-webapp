@@ -63,12 +63,12 @@ const UTYF_CIVILIAN = 3;                  /* Is a non-military unit */
 const UTYF_IGTER = 4;                     /* Ignores terrain movement speed, treating all terrain as roaded */
 const UTYF_ONEATTACK = 5;                 /* HEINOUS MISNOMER: Loses all movement points after making an attack */
 const UTYF_FIELDUNIT = 6;                 /* Causes unhappiness in some governments merely by existing. */
-const UTYF_PROVOKING = 7;                 /* SERVER autoattack: A unit will choose to attack this unit even if defending against it has better odds. */ 
-const UTYF_NEVER_PROTECTS = 8;            /* Overrides unreachable_protects server setting for defender */        
+const UTYF_PROVOKING = 7;                 /* SERVER autoattack: A unit will choose to attack this unit even if defending against it has better odds. */
+const UTYF_NEVER_PROTECTS = 8;            /* Overrides unreachable_protects server setting for defender */
 const UTYF_SETTLERS = 9;                  /* Does not include ability to found cities */
 const UTYF_DIPLOMAT = 10;                 /* The most undocumented hard-coded mystery flag in Freeciv history */
 const UTYF_COAST_STRICT = 11;             /* Can't leave the coast */
-const UTYF_COAST = 12;                    /* Can 'refuel' at coast - meaningless if fuel value not set */ 
+const UTYF_COAST = 12;                    /* Can 'refuel' at coast - meaningless if fuel value not set */
 const UTYF_SHIELD2GOLD = 13;              /* Upkeep can switch from shield to gold */
 const UTYF_SPY = 14;                      /* Strong in diplomatic battles */
 const UTYF_ONLY_NATIVE_ATTACK = 15;       /* Cannot attack vs non-native tiles even if class can */
@@ -94,7 +94,7 @@ const UTYF_NEVER_BLOCKED = 32;            /* Overrides unreachable_protects serv
 const UTYF_USER_FLAG_1 = 33;              /* Reserved for replacing Shield2Gold as flag for using multiple city_build_slots */
 const UTYF_USER_FLAG_2 = 34;              /* Can make hideouts */
 const UTYF_USER_FLAG_3 = 35;              /* Will never autoattack */
-const UTYF_USER_FLAG_4 = 36;              /* Transport Defender: will defend stack as cargo even on non-native tiles FLAG=34 on server */ 
+const UTYF_USER_FLAG_4 = 36;              /* Transport Defender: will defend stack as cargo even on non-native tiles FLAG=34 on server */
 const UTYF_USER_FLAG_5 = 37;              /* Non-Mil Attack - as NonMil can enter Peace tiles, but if not at Peace, can attack e.g., Trireme */
 const UTYF_USER_FLAG_6 = 38;
 const UTYF_USER_FLAG_7 = 39;
@@ -144,13 +144,13 @@ const UTYF_HELICOPTER = UTYF_USER_FLAG_9      // Defends very badly against Figh
 const UTYF_SUBMARINE = UTYF_USER_FLAG_10      // Attack value reduced against some ships
 const UTYF_UNBRIBABLE = UTYF_USER_FLAG_11     // Can't be bribed
 const UTYF_TRADEROUTE = UTYF_USER_FLAG_12     // Can establish trade routes
-const UTYF_HELPWONDER = UTYF_USER_FLAG_13     // Can help build a Wonder 
+const UTYF_HELPWONDER = UTYF_USER_FLAG_13     // Can help build a Wonder
 const UTYF_CAPTURER = UTYF_USER_FLAG_14       // Can capture some enemy units
 const UTYF_CAPTURABLE = UTYF_USER_FLAG_15     // Can be captured by some enemy units
 const UTYF_CITIES = UTYF_USER_FLAG_16         // can build city?
 const UTYF_ADDTOCITY = UTYF_USER_FLAG_17      // Can add itself to the population of a city
 const UTYF_NUCLEAR = UTYF_USER_FLAG_18        // Can perform nuclear detonations
-const UTYF_MISSILE = UTYF_USER_FLAG_19        // Unit is a Missile     
+const UTYF_MISSILE = UTYF_USER_FLAG_19        // Unit is a Missile
 const UTYF_WELLDIGGER = UTYF_USER_FLAG_20     // Can dig a well and irrigate tiles with no water.
 const UTYF_INFRA = UTYF_USER_FLAG_21          // Can build infrastructure
 const UTYF_PROLETARIAN = UTYF_USER_FLAG_22    // Controllable only by communist governments
@@ -272,14 +272,14 @@ function get_utypes_from_tech(tech_id)
 
   for (var unit_type_id in unit_types) {
     var punit_type = unit_types[unit_type_id];
-    if (punit_type['tech_requirement'] == tech_id) {
+    if (punit_type['build_reqs'].length > 0 && punit_type['build_reqs'][0]['value'] == tech_id) {
       result.push(punit_type);
     }
   }
   return result;
 }
 
-/************************************************************************ 
+/************************************************************************
  * Returns the REAL base attack strength of a unit based on its v0 vet
  * power level.
 *************************************************************************/
@@ -293,7 +293,7 @@ function utype_real_base_attack_strength(ptype) {
   adjusted = Math.round(adjusted) / 1000;
   return adjusted;
 }
-/************************************************************************ 
+/************************************************************************
  * Same as above, for base defense strength.
 *************************************************************************/
 function utype_real_base_defense_strength(ptype) {
@@ -307,15 +307,15 @@ function utype_real_base_defense_strength(ptype) {
   return adjusted;
 }
 
-/************************************************************************ 
+/************************************************************************
  * Returns the "real" base move rate of a unit, since v0 veteran level
  * can be used to achieve non-integer values for base movement.
  * Return value is in move_frags.
 *************************************************************************/
 function utype_real_base_move_rate(punit_type)
 {
-  var move_bonus = parseInt(punit_type['move_bonus'][0]) 
-                 ? parseInt(punit_type['move_bonus'][0]) 
+  var move_bonus = parseInt(punit_type['move_bonus'][0])
+                 ? parseInt(punit_type['move_bonus'][0])
                  : 0;
   var move_rate  = parseInt(punit_type['move_rate']);
 
