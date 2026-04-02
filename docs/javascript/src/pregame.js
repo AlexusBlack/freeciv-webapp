@@ -691,6 +691,16 @@ function pregame_settings()
   $(id).remove();
   $("<div id='pregame_settings'></div>").appendTo("div#pregame_page");
 
+  // + "<option value='mp2-dragoon'>Multiplayer 2.4 Dragoon</option>"
+  // + "<option value='mp2-caravel'>Multiplayer 2.3 Caravel</option>"
+  // + "<option value='mp2s-sputnik'>Multiplayer 2.3-Space: Sputnik</option>"
+  // + "<option value='mp2-brava'>Multiplayer 2.2 Brava</option>"
+  // + "<option value='mp2b-occ'>MP 2.2 One City Challenge</option>"
+  // + "<option value='mp2b-desert'>MP 2.2 Desert</option>"
+  // + "<option value='ag'>Multiplayer 2.1 Avant-garde</option>"
+  // + "<option value='mpplus'>Multiplayer+ 1.1</option>"
+  // + "<option value='SIM30'>SIM30</option>"
+  // + "<option value='civ2civ3'>Civ2Civ3</option>"
   var dhtml = "<div id='pregame_settings_tabs'>" +
       "   <ul>" +
       "     <li><a href='#pregame_settings_tabs-1'>Main</a></li>" +
@@ -699,16 +709,8 @@ function pregame_settings()
       + "<div id='pregame_settings_tabs-1'><table id='settings_table'> "
       + "<tr title='Ruleset version'><td>Ruleset:</td>"
       + "<td><select name='ruleset' id='ruleset'>"
-      + "<option value='mp2-caravel'>Multiplayer 2.3 Caravel</option>"
-      + "<option value='mp2s-sputnik'>Multiplayer 2.3-Space: Sputnik</option>"
-      + "<option value='mp2-brava'>Multiplayer 2.2 Brava</option>"
-      + "<option value='mp2b-occ'>MP 2.2 One City Challenge</option>"
-      + "<option value='mp2b-desert'>MP 2.2 Desert</option>"
-      + "<option value='ag'>Multiplayer 2.1 Avant-garde</option>"
-      + "<option value='mpplus'>Multiplayer+ 1.1</option>"
-      + "<option value='SIM30'>SIM30</option>"
       + "<option value='classic'>Classic</option>"
-      + "<option value='civ2civ3'>Civ2Civ3</option>"
+      + "<option value='webciv'>WebCiv</option>"
       + "</select><a id='ruleset_description'></a></td></tr>"
       + "<tr title='Set metaserver info line'><td>Game title:</td>" +
     "<td><input type='text' name='metamessage' id='metamessage' size='28' maxlength='42'></td></tr>" +

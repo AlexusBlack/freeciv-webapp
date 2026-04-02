@@ -85,7 +85,7 @@ if (ENVIRONMENT_IS_NODE) {
 
 // --pre-jses are emitted after the Module integration code, so that they can
 // refer to Module (if they choose; they can also define Module)
-// include: /tmp/tmpe1u1aygw.js
+// include: /tmp/tmpbu4xhyyf.js
 if (!Module["expectedDataFileDownloads"]) Module["expectedDataFileDownloads"] = 0;
 
 Module["expectedDataFileDownloads"]++;
@@ -171,6 +171,7 @@ Module["expectedDataFileDownloads"]++;
       Module["FS_createPath"]("/data", "default", true, true);
       Module["FS_createPath"]("/data", "nation", true, true);
       Module["FS_createPath"]("/data", "override", true, true);
+      Module["FS_createPath"]("/data", "webciv", true, true);
       for (var file of metadata["files"]) {
         var name = file["filename"];
         Module["addRunDependency"](`fp ${name}`);
@@ -2580,28 +2581,92 @@ Module["expectedDataFileDownloads"]++;
       "filename": "/data/override/shields.spec",
       "start": 1643465,
       "end": 1643667
+    }, {
+      "filename": "/data/webciv/.gitignore",
+      "start": 1643667,
+      "end": 1643690
+    }, {
+      "filename": "/data/webciv/Makefile.am",
+      "start": 1643690,
+      "end": 1644179
+    }, {
+      "filename": "/data/webciv/README.webciv",
+      "start": 1644179,
+      "end": 1650332
+    }, {
+      "filename": "/data/webciv/actions.ruleset",
+      "start": 1650332,
+      "end": 1698057
+    }, {
+      "filename": "/data/webciv/buildings.ruleset",
+      "start": 1698057,
+      "end": 1747349
+    }, {
+      "filename": "/data/webciv/cities.ruleset",
+      "start": 1747349,
+      "end": 1752753
+    }, {
+      "filename": "/data/webciv/effects.ruleset",
+      "start": 1752753,
+      "end": 1816877
+    }, {
+      "filename": "/data/webciv/game.ruleset",
+      "start": 1816877,
+      "end": 1847112
+    }, {
+      "filename": "/data/webciv/governments.ruleset",
+      "start": 1847112,
+      "end": 1856075
+    }, {
+      "filename": "/data/webciv/nations.ruleset",
+      "start": 1856075,
+      "end": 1858570
+    }, {
+      "filename": "/data/webciv/parser.lua",
+      "start": 1858570,
+      "end": 1859209
+    }, {
+      "filename": "/data/webciv/script.lua",
+      "start": 1859209,
+      "end": 1864832
+    }, {
+      "filename": "/data/webciv/styles.ruleset",
+      "start": 1864832,
+      "end": 1871873
+    }, {
+      "filename": "/data/webciv/techs.ruleset",
+      "start": 1871873,
+      "end": 1893006
+    }, {
+      "filename": "/data/webciv/terrain.ruleset",
+      "start": 1893006,
+      "end": 1960826
+    }, {
+      "filename": "/data/webciv/units.ruleset",
+      "start": 1960826,
+      "end": 2040654
     } ],
-    "remote_package_size": 1643667
+    "remote_package_size": 2040654
   });
 })();
 
-// end include: /tmp/tmpe1u1aygw.js
-// include: /tmp/tmpsaryb1ry.js
+// end include: /tmp/tmpbu4xhyyf.js
+// include: /tmp/tmp36is5lw1.js
 // All the pre-js content up to here must remain later on, we need to run
 // it.
 if ((typeof ENVIRONMENT_IS_WASM_WORKER != "undefined" && ENVIRONMENT_IS_WASM_WORKER) || (typeof ENVIRONMENT_IS_PTHREAD != "undefined" && ENVIRONMENT_IS_PTHREAD) || (typeof ENVIRONMENT_IS_AUDIO_WORKLET != "undefined" && ENVIRONMENT_IS_AUDIO_WORKLET)) Module["preRun"] = [];
 
 var necessaryPreJSTasks = Module["preRun"].slice();
 
-// end include: /tmp/tmpsaryb1ry.js
-// include: /tmp/tmp9zky8ptt.js
+// end include: /tmp/tmp36is5lw1.js
+// include: /tmp/tmpzumkalus.js
 if (!Module["preRun"]) throw "Module.preRun should exist because file support used it; did a pre-js delete it?";
 
 necessaryPreJSTasks.forEach(task => {
   if (Module["preRun"].indexOf(task) < 0) throw "All preRun tasks that exist before user pre-js code should remain after; did you replace Module or modify Module.preRun?";
 });
 
-// end include: /tmp/tmp9zky8ptt.js
+// end include: /tmp/tmpzumkalus.js
 var arguments_ = [];
 
 var thisProgram = "./this.program";
